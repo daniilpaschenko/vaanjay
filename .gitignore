@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+build/
+dist/
+.turbo/
+
+# Go
+services/api/bin/
+services/rtc/bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Media uploads (local dev storage)
+services/api/uploads/
+services/api/storage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data / local databases
+*.db
+*.sqlite
+*.sqlite3
+data/*.json
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+coverage/
+*.tsbuildinfo
+.vercel
+.cache/

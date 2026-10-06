@@ -1,0 +1,114 @@
+{
+  "app": {
+    "name": "VAANJAY",
+    "name_ta": "வாஞ்செய்",
+    "tagline": "Your world, your voice",
+    "description": "Tamil Nadu's Super App"
+  },
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "reels": "Reels",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "create": "Create"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "phone": "Phone Number",
+    "full_name": "Full Name",
+    "forgot_password": "Forgot password?",
+    "otp_verify": "Verify OTP",
+    "enter_otp": "Enter the 6-digit OTP",
+    "resend_otp": "Resend OTP",
+    "sign_in_otp": "Sign in with OTP",
+    "create_account": "Create Account",
+    "already_account": "Already have an account? Sign in"
+  },
+  "home": {
+    "welcome": "Welcome to VAANJAY!",
+    "follow_hint": "Follow users to see their posts",
+    "likes": "likes",
+    "comments": "comments",
+    "shares": "shares",
+    "saves": "saves"
+  },
+  "profile": {
+    "edit_profile": "Edit Profile",
+    "follow": "Follow",
+    "following": "Following",
+    "followers": "Followers",
+    "posts": "Posts",
+    "reels": "Reels",
+    "tagged": "Tagged",
+    "saved": "Saved"
+  },
+  "explore": {
+    "title": "Explore",
+    "search": "Search VAANJAY...",
+    "trending": "Trending",
+    "topics": "Topics",
+    "hashtags": "Hashtags"
+  },
+  "messages": {
+    "title": "Messages",
+    "new_message": "New Message",
+    "type_message": "Type a message...",
+    "no_conversations": "No conversations yet",
+    "online": "Online",
+    "typing": "typing..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "this_week": "This Week",
+    "earlier": "Earlier",
+    "empty": "No notifications yet",
+    "follow": "started following you",
+    "like": "liked your post",
+    "comment": "commented on your post",
+    "mention": "mentioned you"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "privacy": "Privacy",
+    "security": "Security",
+    "language": "Language",
+    "payments": "Payments",
+    "help": "Help",
+    "about": "About VAANJAY",
+    "dark_mode": "Dark Mode",
+    "notifications": "Notifications"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "share": "Share",
+    "report": "Report",
+    "block": "Block",
+    "search": "Search",
+    "loading": "Loading...",
+    "no_data": "No data available",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "time": {
+    "now": "Now",
+    "minutes_ago": "minutes ago",
+    "hours_ago": "hours ago",
+    "days_ago": "days ago"
+  }
+}

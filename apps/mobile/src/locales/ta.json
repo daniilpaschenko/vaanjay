@@ -1,0 +1,136 @@
+{
+  "app": {
+    "name": "VAANJAY",
+    "name_ta": "வாஞ்செய்",
+    "tagline": "உங்கள் உலகம், உங்கள் குரல்",
+    "description": "தமிழகத்தின் சூப்பர் ஆப்"
+  },
+  "nav": {
+    "home": "முகப்பு",
+    "explore": "ஆராய்க",
+    "reels": "ரீல்ஸ்",
+    "messages": "செய்திகள்",
+    "notifications": "அறிவிப்புகள்",
+    "profile": "சுயவிவரம்",
+    "settings": "அமைப்புகள்",
+    "create": "உருவாக்கு"
+  },
+  "auth": {
+    "login": "உள்நுழைக",
+    "register": "புதிய கணக்கு",
+    "logout": "வெளியேறு",
+    "email": "மின்னஞ்சல்",
+    "password": "கடவுச்சொல்",
+    "username": "பயனர் பெயர்",
+    "phone": "தொலைபேசி எண்",
+    "full_name": "முழுப் பெயர்",
+    "forgot_password": "கடவுச்சொல் மறந்துவிட்டீர்களா?",
+    "otp_verify": "OTP ஐ உறுதிப்படுத்தவும்",
+    "enter_otp": "6 இலக்க OTP ஐ உள்ளிடவும்",
+    "resend_otp": "OTP மீண்டும் அனுப்பு",
+    "sign_in_otp": "OTP மூலம் உள்நுழைக",
+    "create_account": "கணக்கை உருவாக்கு",
+    "already_account": "ஏற்கனவே கணக்கு உள்ளதா? உள்நுழைக"
+  },
+  "home": {
+    "welcome": "VAANJAY க்கு வரவேற்கிறோம்!",
+    "follow_hint": "பயனர்களைப் பின்தொடர்ந்து அவர்களின் பதிவுகளைப் பார்க்கவும்",
+    "likes": "லைக்குகள்",
+    "comments": "கருத்துகள்",
+    "shares": "பகிர்வுகள்",
+    "saves": "சேமிப்புகள்"
+  },
+  "profile": {
+    "edit_profile": "சுயவிவரத்தைத் திருத்து",
+    "follow": "பின்தொடர்",
+    "following": "பின்தொடர்கிறது",
+    "followers": "பின்தொடர்பவர்கள்",
+    "posts": "பதிவுகள்",
+    "reels": "ரீல்ஸ்",
+    "tagged": "குறிக்கப்பட்டவை",
+    "saved": "சேமித்தவை"
+  },
+  "explore": {
+    "title": "ஆராய்க",
+    "search": "VAANJAY ஐ தேடுங்கள்...",
+    "trending": "பிரபலமானவை",
+    "topics": "தலைப்புகள்",
+    "hashtags": "ஹேஷ்டேக்குகள்"
+  },
+  "messages": {
+    "title": "செய்திகள்",
+    "new_message": "புதிய செய்தி",
+    "type_message": "செய்தியை தட்டச்சு செய்க...",
+    "no_conversations": "இன்னும் உரையாடல்கள் இல்லை",
+    "online": "நிகழ்நிலை",
+    "typing": "தட்டச்சு செய்கிறார்..."
+  },
+  "notifications": {
+    "title": "அறிவிப்புகள்",
+    "today": "இன்று",
+    "yesterday": "நேற்று",
+    "this_week": "இந்த வாரம்",
+    "earlier": "முந்தையவை",
+    "empty": "அறிவிப்புகள் எதுவும் இல்லை",
+    "follow": "உங்களைப் பின்தொடர்ந்தார்",
+    "like": "உங்கள் பதிவை விரும்பினார்",
+    "comment": "கருத்து தெரிவித்தார்",
+    "mention": "உங்களை குறிப்பிட்டார்"
+  },
+  "settings": {
+    "title": "அமைப்புகள்",
+    "account": "கணக்கு",
+    "privacy": "தனியுரிமை",
+    "security": "பாதுகாப்பு",
+    "language": "மொழி",
+    "payments": "கட்டணங்கள்",
+    "help": "உதவி",
+    "about": "VAANJAY பற்றி",
+    "dark_mode": "இருண்ட தோற்றம்",
+    "notifications": "அறிவிப்புகள்"
+  },
+  "common": {
+    "save": "சேமி",
+    "cancel": "ரத்துசெய்",
+    "delete": "நீக்கு",
+    "edit": "திருத்து",
+    "share": "பகிர்",
+    "report": "அறிவி",
+    "block": "தடு",
+    "search": "தேடு",
+    "loading": "ஏற்றுகிறது...",
+    "no_data": "தரவு இல்லை",
+    "error": "பிழை ஏற்பட்டது",
+    "retry": "மீண்டும் முயற்சிக்கவும்",
+    "confirm": "உறுதிப்படுத்து",
+    "back": "பின்"
+  },
+  "time": {
+    "now": "இப்போது",
+    "minutes_ago": "நிமிடங்களுக்கு முன்",
+    "hours_ago": "மணிநேரங்களுக்கு முன்",
+    "days_ago": "நாட்களுக்கு முன்"
+  },
+  "tamil_calendar": {
+    "thai": "தை",
+    "maasi": "மாசி",
+    "panguni": "பங்குனி",
+    "chithirai": "சித்திரை",
+    "vaigasi": "வைகாசி",
+    "aani": "ஆனி",
+    "aadi": "ஆடி",
+    "aavani": "ஆவணி",
+    "purattasi": "புரட்டாசி",
+    "aipassi": "ஐப்பசி",
+    "karthigai": "கார்த்திகை",
+    "margazhi": "மார்கழி"
+  },
+  "festivals": {
+    "pongal": "பொங்கல்",
+    "karthigai_deepam": "கார்த்திகை தீபம்",
+    "aadi_perukku": "ஆடி பெருக்கு",
+    "tamil_new_year": "தமிழ் புத்தாண்டு",
+    "deepavali": "தீபாவளி",
+    "vinayagar_chathurthi": "விநாயகர் சதுர்த்தி"
+  }
+}

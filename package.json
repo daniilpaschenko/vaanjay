@@ -1,0 +1,38 @@
+{
+  "name": "vaanjay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VAANJAY (வாஞ்செய்) — Tamil Nadu's Super-App: Instagram + WhatsApp + Facebook + Twitter + WeChat + Reddit",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "db:migrate": "cd services/api && go run cmd/migrate.go",
+    "db:seed": "cd services/api && go run cmd/seed.go",
+    "api:dev": "cd services/api && air",
+    "api:build": "cd services/api && go build -o bin/vaanjay-api cmd/main.go",
+    "web:dev": "cd apps/web && npm run dev",
+    "mobile:start": "cd apps/mobile && npx expo start",
+    "mobile:android": "cd apps/mobile && npx expo start --android",
+    "mobile:ios": "cd apps/mobile && npx expo start --ios"
+  },
+  "devDependencies": {
+    "turbo": "^1.12.4",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "packageManager": "npm@9.8.1"
+}

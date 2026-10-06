@@ -1,0 +1,618 @@
+You are a senior full-stack architect. Build a complete production-ready social
+media platform called VAANJAY — a super-app combining Instagram, WhatsApp,
+Facebook, Twitter, WeChat, and Reddit, designed specifically for Tamil Nadu and
+Tamil culture. The app must be a cross-platform product: Android app, iOS app,
+and a responsive web app — all sharing one backend.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — TECH STACK (PERFORMANCE-FIRST)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Choose a stack that:
+• Uses minimum RAM, CPU, and storage on the user's device
+• Offloads processing to the device whenever possible (on-device compression,
+on-device video encoding before upload)
+• Minimizes server calls using aggressive local caching
+Stack:
+• Mobile App: React Native (Expo bare workflow) — single codebase for Android + iOS
+• Web App: Next.js 14 (App Router) — SSR + SSG for performance
+• Backend API: Go (Golang) with Fiber framework — ultra-low memory, high concurrency
+• Realtime (DMs, calls signaling, live reactions): Go + WebSocket (gorilla/websocket)
+• Video/Audio Calls: WebRTC (via Pion in Go backend, mediasoup optional)
+• Database: PostgreSQL (primary) + Redis (caching, sessions, online presence)
+• Media Storage: Cloudflare R2 (S3-compatible, cheap, fast CDN)
+• On-device media: Use React Native's built-in camera + FFmpeg-kit for
+compression before upload
+• Push Notifications: Firebase Cloud Messaging (FCM)
+• Payments/UPI: Razorpay SDK (supports UPI, UPI QR, PhonePe, GPay, Paytm)
+• Authentication: JWT (access + refresh tokens) + OTP via SMS (Twilio or MSG91)
+• Admin Panel: Next.js web dashboard (separate route /admin, same codebase)
+• Monorepo structure using Turborepo:
+/apps/mobile → React Native
+/apps/web → Next.js
+/apps/admin → Next.js admin panel
+/services/api → Go backend
+/services/rtc → WebRTC signaling server
+/packages/ui → Shared UI components
+/packages/types → Shared TypeScript types
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — DATABASE SCHEMA (PostgreSQL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Design and generate full SQL migration files for these tables:
+users:
+id, username (unique, allows letters/numbers/@/_/-), email (unique),
+phone_number (unique, Indian format), password_hash, full_name, bio,
+profile_pic_url, is_verified (blue tick), is_admin, language_preference,
+is_private, is_active, created_at, updated_at
+posts:
+id, user_id (FK), media_urls (array), caption, location, type
+(photo/video/reel/story/text), is_archived, created_at
+stories:
+id, user_id, media_url, caption (nullable), type (image/video),
+expires_at (24h), viewers (array of user_ids), created_at
+reels:
+id, user_id, video_url, thumbnail_url, caption, audio_id (FK),
+duration_seconds, view_count, created_at
+comments:
+id, post_id/reel_id, user_id, content, parent_comment_id (for replies),
+created_at
+reactions:
+id, target_id, target_type (post/reel/comment/story), user_id,
+reaction_type (like/love/haha/wow/sad/angry/dislike), created_at
+reposts:
+id, original_post_id, user_id, caption, created_at
+follows:
+follower_id, following_id, status (pending/accepted), created_at
+direct_messages:
+id, conversation_id, sender_id, content, media_url, message_type
+(text/image/video/audio/doc/sticker/call_log), is_read, created_at
+conversations:
+id, type (private/group), name, group_pic_url, created_by, created_at
+conversation_members:
+conversation_id, user_id, role (admin/member), joined_at
+calls:
+id, caller_id, receiver_id/group_id, type (audio/video),
+status (initiated/ongoing/ended/missed), started_at, ended_at, duration_seconds
+notifications:
+id, user_id, type, reference_id, reference_type, message, is_read, created_at
+verified_badges:
+id, user_id, badge_type (blue/gold/official), granted_by (admin_id),
+granted_at, reason
+upi_transactions:
+id, sender_id, receiver_id, amount, upi_ref_id, status, note, created_at
+reports:
+id, reporter_id, target_id, target_type, reason, status (pending/reviewed/action_taken),
+created_at
+saved_posts:
+id, user_id, post_id/reel_id, collection_name, saved_at
+audio_tracks:
+id, title, artist, url, duration, usage_count, created_at
+hashtags + post_hashtags tables
+explore_topics + user_topic_interests tables
+polls, poll_options, poll_votes tables
+broadcasts (WhatsApp-style broadcast lists) table
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — BACKEND API (Go + Fiber)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Build a RESTful + WebSocket API with these route groups:
+/api/v1/auth
+POST /register → username + email + phone + password (all unique-checked)
+POST /login → email OR phone OR username + password
+POST /otp/send → send OTP to phone number
+POST /otp/verify → verify OTP
+POST /refresh-token
+POST /logout
+POST /forgot-password
+POST /reset-password
+Registration rules:
+• If phone already registered → return error "Phone number already in use"
+• If email already registered → return error "Email already in use"
+• If username already taken → return error "Username not available"
+• Username must match regex: ^[a-zA-Z0-9@_-.]{3,30}$
+/api/v1/users
+GET /me
+PUT /me → update profile, bio, profile pic, language
+GET /:username → public profile
+POST /:id/follow
+DELETE /:id/unfollow
+GET /:id/followers
+GET /:id/following
+GET /search?q=
+/api/v1/posts
+POST / → create post (photo/video/text)
+GET /feed → personalized feed
+GET /:id
+DELETE /:id
+POST /:id/like
+POST /:id/dislike
+POST /:id/repost
+POST /:id/save
+GET /saved
+/api/v1/stories
+POST / → create story (image/video, caption optional)
+GET /feed → stories of followed users
+DELETE /:id
+POST /:id/view
+/api/v1/reels
+POST / → upload reel (with on-device-compressed video)
+GET /feed → infinite scroll reels feed (algorithm-ranked)
+GET /:id
+POST /:id/like
+POST /:id/dislike
+/api/v1/comments
+POST / → add comment (to post or reel)
+GET /?target_id=&target_type=
+DELETE /:id
+POST /:id/like
+POST /:id/reply
+/api/v1/messages
+GET /conversations → list all conversations
+POST /conversations → create new private or group conversation
+GET /conversations/:id → get messages in conversation (paginated)
+POST /conversations/:id/send → send message (text/media/audio/doc)
+DELETE /conversations/:id/messages/:msg_id
+POST /conversations/:id/members/add → add member to group
+DELETE /conversations/:id/members/remove
+PUT /conversations/:id/info → update group name, pic
+/api/v1/calls
+POST /initiate → start audio or video call
+POST /accept/:call_id
+POST /reject/:call_id
+POST /end/:call_id
+GET /history
+/api/v1/explore
+GET /trending → trending posts, reels, hashtags, topics
+GET /hashtag/:tag
+GET /topics
+GET /search?q=&type= → users, posts, reels, hashtags, audio
+/api/v1/notifications
+GET / → paginated notifications
+PUT /:id/read
+PUT /read-all
+/api/v1/payments
+POST /upi/send → send money to a user via UPI
+GET /upi/history → transaction history
+GET /upi/profile → user's UPI ID and linked accounts
+POST /upi/request → request money from another user
+/api/v1/reports
+POST / → report user, post, reel, comment
+/api/v1/admin (protected — admin role only)
+GET /users → list all users with filters
+PUT /users/:id/ban
+PUT /users/:id/unban
+PUT /users/:id/verify → grant blue tick
+DELETE /users/:id/verify → remove blue tick
+PUT /users/:id/badge → assign badge type (blue/gold/official)
+GET /posts → all posts with moderation filters
+DELETE /posts/:id → admin delete any post
+GET /reports → all reports with status filter
+PUT /reports/:id/action → take action on a report
+GET /analytics/users → user growth charts
+GET /analytics/content → post/reel activity charts
+GET /analytics/calls → call volume
+GET /analytics/payments → payment volume
+POST /notifications/broadcast → send push notification to all users
+GET /dashboard → summary stats (DAU, MAU, total posts,
+total reels, total DMs, revenue)
+WebSocket endpoints:
+WS /ws/messages → realtime DMs and group chat
+WS /ws/notifications → realtime notification push
+WS /ws/stories-live → live story view count
+WS /ws/calls/signal → WebRTC signaling (offer/answer/ICE candidates)
+WS /ws/presence → online/offline/last-seen status
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 — MOBILE APP (React Native)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Build with Expo bare workflow + React Navigation v6.
+State: Zustand (lightweight, minimal memory vs Redux).
+Media: react-native-vision-camera + ffmpeg-kit-react-native (on-device compress).
+Calls: react-native-webrtc.
+Payments: Razorpay React Native SDK.
+Push: @react-native-firebase/messaging.
+Storage: MMKV (faster + less RAM than AsyncStorage).
+Localization: i18next + react-i18next.
+Video player: react-native-video (hardware-accelerated).
+SCREENS — build every screen listed:
+Auth Stack:
+SplashScreen → VAANJAY logo with Tamil tagline
+LanguageSelectScreen → language picker (Tamil first, then order from Section 8)
+OnboardingScreen → 3 swipeable slides about app features
+LoginScreen → phone/email/username + password, OTP option
+RegisterScreen → username, full name, email, phone, password
+(real-time uniqueness check as user types)
+OTPVerifyScreen → 6-digit OTP input with countdown resend timer
+ForgotPasswordScreen
+Main Tab Navigator (bottom tabs):
+Tab 1 — HomeScreen
+→ Instagram-style feed (photos, videos, text posts)
+→ Stories row at top (circle avatars, Tamil-first display names)
+→ Pull to refresh, infinite scroll pagination
+→ Each post: like, dislike, comment, share, repost, save buttons
+→ Long press post → options menu (report, copy link, share)
+Tab 2 — ReelsScreen
+→ Full screen vertical scroll (FlatList with viewabilityConfig)
+→ Hardware-accelerated video playback
+→ Auto-play on scroll, pause on scroll away
+→ Like, dislike, comment drawer from bottom
+→ Share reel to DM or external
+→ Follow button overlay on creator profile pic
+→ Audio name bar at bottom (tap to see all reels using that audio)
+→ Double tap to like with animation
+Tab 3 — CreateScreen (center + button)
+→ Bottom sheet with options:
+- Post (photo from gallery or direct camera capture)
+- Reel (direct camera recording up to 90 seconds, gallery video)
+- Story (photo/video/text story)
+- Go Live (live streaming via WebRTC)
+- Thread/Text Post
+→ Camera screen:
+- Front/back switch
+- Flash toggle
+- Timer (3s/10s)
+- Speed control (0.3x/0.5x/1x/2x/3x) for reels
+- Add music to reel
+- Filters row
+- Direct record button
+→ Post editor:
+- Caption input (hashtag and @mention autocomplete)
+- Location tag
+- Tag people
+- Alt text for accessibility
+- Audience selector (public/followers/close friends)
+- Tamil spell-check suggestion
+Tab 4 — ExploreScreen
+→ Search bar at top (users, posts, reels, hashtags, topics, audio)
+→ Trending hashtags section
+→ Topic categories (Science & Tech, Geopolitics, Tamil Culture,
+Entertainment, Sports, Finance, Memes, etc.)
+→ Grid of trending posts and reels
+→ Reddit-style topic threads section
+Tab 5 — NotificationsScreen
+→ Grouped: Today, This Week, Earlier
+→ Types: follow, like, comment, mention, reel view milestone,
+message preview, call missed, payment received
+Tab 6 — MessagesScreen (DMs)
+→ Conversation list with last message preview
+→ Online indicator (green dot)
+→ Unread count badge
+→ Swipe right to archive, swipe left to mute
+→ Tap conversation → ChatScreen:
+- Text, emoji, sticker, GIF, image, video, audio recording,
+document sharing
+- Long press message → react, reply, copy, delete, forward
+- Voice message recording (hold mic button)
+- Video call button (top right)
+- Audio call button (top right)
+- Group info / Private user profile tap
+Profile Stack:
+ProfileScreen (own)
+→ Profile pic, full name, username, bio, website link
+→ Followers / Following / Posts count
+→ Edit Profile button
+→ Posts grid / Reels tab / Tagged tab / Saved tab
+→ Blue tick badge next to name if verified
+→ Story highlight circles below bio
+OtherUserProfileScreen
+→ Follow/Following/Requested button
+→ Message button
+→ Call button
+→ Posts grid (if public or followed)
+→ Blue tick visible
+EditProfileScreen
+→ Profile pic upload (on-device crop before upload)
+→ Name, username, bio, website, gender
+→ Language preference
+→ Link social accounts
+Settings Stack:
+SettingsScreen
+→ Account settings
+→ Privacy settings (private account toggle, blocked users,
+restrict users, story settings, close friends list)
+→ Notifications settings
+→ Security (change password, 2FA, login activity)
+→ Language settings (Tamil first)
+→ Payment & UPI settings
+→ Help & Support
+→ About VAANJAY
+→ Logout
+CallScreen:
+→ Full screen audio or video call
+→ Caller ID with profile pic
+→ Mute, speaker, camera flip, end call buttons
+→ WebRTC peer connection via signaling server
+→ Group video call support (up to 8 participants)
+PaymentScreen:
+→ Send money to any VAANJAY user by username/phone
+→ Scan UPI QR code
+→ Request money
+→ Transaction history
+→ UPI PIN entry (secure overlay)
+→ Support for all Indian UPI apps
+StoryViewerScreen:
+→ Full screen story with progress bar at top
+→ Tap left/right to navigate
+→ Swipe down to close
+→ Reply to story (goes to DM)
+→ View story viewers list (own story)
+→ Captions overlay (optional per story)
+LiveScreen:
+→ Go live with title and topic tag
+→ Viewer count, hearts animation
+→ Live chat overlay
+→ Invite co-host
+→ Save live replay option
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 — WEB APP (Next.js 14)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Build a fully responsive web app at the same feature level as mobile.
+Pages:
+/ (home feed — requires login)
+/explore
+/reels → vertical scroll reels (same as mobile)
+/messages → full DM interface like Instagram web
+/notifications
+/[username] → public profile page
+/[username]/post/[id]
+/stories → story viewer
+/live/[id]
+/settings
+/auth/login
+/auth/register
+/auth/forgot-password
+/payments
+Design:
+→ Desktop: 3-column layout (nav sidebar, feed, suggestions panel)
+→ Mobile browser: matches the app layout exactly
+→ Dark mode and Light mode toggle
+→ Tamil font support: use "Latha" or "Noto Sans Tamil" as primary font
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 — ADMIN PANEL (Next.js /admin)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The admin panel must look and feel exactly like the main app's design language
+(same colors, fonts, components) but with a sidebar dashboard layout.
+Only users with is_admin = true can access it.
+It must be accessible from the web at vaanjay.com/admin.
+Admin panel pages:
+/admin/dashboard
+→ Stats cards: Total Users, DAU, MAU, Total Posts, Total Reels,
+Active Calls, Total DM Messages, Revenue from Payments
+→ Line charts: User growth (daily/weekly/monthly)
+→ Bar charts: Content posted per day
+→ Pie chart: Language distribution of users
+/admin/users
+→ Searchable, filterable, sortable table of all users
+→ Columns: profile pic, username, full name, email, phone,
+verified badge, joined date, status (active/banned)
+→ Actions per user:
+- Grant / Remove blue tick (verified badge)
+- Grant / Remove gold badge (creator)
+- Grant / Remove official badge (government/brand)
+- Ban user (with reason)
+- Unban user
+- View user's posts, reels, DMs (admin read access)
+- Force logout (invalidate all sessions)
+- Delete account
+/admin/content
+→ All posts and reels table
+→ Filter by: type, date, reported, trending
+→ Delete any post or reel
+→ Pin post to Explore
+→ Mark reel as featured
+/admin/reports
+→ All user-submitted reports
+→ Filter by: status (pending/reviewed/actioned), type
+→ Take action: warn user, delete content, ban user, dismiss report
+→ Assign reports to admin staff
+/admin/notifications
+→ Compose and send push notification to:
+- All users
+- Specific users by username
+- Users by language preference
+- Users by region/district (Tamil Nadu districts)
+/admin/payments
+→ All UPI transactions with status
+→ Revenue dashboard
+→ Flag suspicious transactions
+/admin/verification-requests
+→ Queue of users who applied for blue tick
+→ Profile info, follower count, content quality score
+→ Approve / Reject with one-click
+/admin/settings
+→ App configuration: maintenance mode toggle,
+feature flags (enable/disable payments, live, calls),
+default language setting,
+content moderation sensitivity
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 7 — VERIFICATION / BLUE TICK SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Three badge types:
+🔵 Blue Tick → public figure, celebrity, artist, influencer
+🟡 Gold Badge → top content creator, verified earner
+✅ Official → government body, verified brand or organization
+Rules:
+• Any user can apply for blue tick from Settings → Verification Request
+• Application requires: category, government ID or press link,
+reason/description
+• Admin reviews from /admin/verification-requests
+• Admin can grant, reject, or request more info
+• Badge shows next to username everywhere in the app:
+profile, posts, reels, comments, DMs, search results
+• Admin can revoke badge at any time from /admin/users
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 8 — LANGUAGE SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Language priority order for app UI, content display, and
+all language-picker lists throughout the app:
+1. Tamil (தமிழ்) ← FIRST, always
+2. Telugu (తెలుగు)
+3. Kannada (ಕನ್ನಡ)
+4. Malayalam (മലയാളം)
+5. Tulu
+6. Konkani
+7. All other Indian regional languages (alphabetical)
+8. English ← second priority for UI default
+9. All international languages (alphabetical by English name)
+Arabic, Bengali, French, German, Indonesian, Japanese,
+Korean, Malay, Mandarin, Portuguese, Russian, Spanish,
+Swahili, Thai, Turkish, Urdu, Vietnamese … etc.
+[LAST GROUP — always at bottom]:
+Sinhalese (සිංහල)
+Hindi (हिन्दी)
+Sanskrit (संस्कृतम्)
+Implementation:
+• i18next with locale files for each language
+• Tamil locale file created first and most complete
+• If a string is missing in selected language, fall back to Tamil,
+then English (never fall back to Hindi first)
+• Users can set their preferred content language separately from
+UI language
+• Explore feed filters content by user's language preference
+• All Tamil language strings must use proper literary Tamil,
+not transliteration
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 9 — CONTENT CREATOR MONETIZATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Creators can earn money through:
+• Reel views monetization (ad revenue share, CPM based)
+• Tips from followers (UPI-powered, any amount)
+• Paid subscriptions (followers pay monthly to access
+exclusive content from a creator)
+• Gifts on Live streams (virtual gifts converted to cash via UPI)
+• Brand sponsorship marketplace (brands post briefs,
+creators apply, admin approves deal)
+Creator dashboard (in-app):
+• Total earnings, pending payout, paid out
+• Views per reel, engagement rate
+• Follower growth graph
+• Withdraw to UPI/bank account
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 10 — TAMIL CULTURE FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Build these culture-specific features:
+1. Tamil Calendar Integration
+→ Show Tamil month (Thai, Maasi, Panguni…) and Thirunal dates
+in the app's date display and event reminders
+1. Festival Mode
+→ On major Tamil festivals (Pongal, Karthigai, Aadi Perukku etc.)
+the app theme changes to festival-specific colors and the
+homescreen shows a celebration banner
+1. Tamil Stickers & GIFs
+→ Default sticker pack with Tamil-language stickers,
+Kollywood actor/actress stickers, classic meme formats
+in Tamil
+1. Kollywood Audio
+→ Built-in popular Tamil movie audio tracks for reels
+(properly licensed)
+→ Tamil trending audio section in Reels
+1. Regional Topic Tags
+→ Pre-built explore topic tags:
+#Chennai, #Madurai, #Coimbatore, #TamilNadu, #Kollywood,
+#TamilMemes, #EelamTamil, #TamilTech, #TamilPolitics,
+#TamilScience
+1. TN District Community Groups
+→ Auto-join local community group based on user's registered
+district (Chennai, Madurai, Coimbatore, Salem etc.)
+→ Group feed for district-specific content
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 11 — SECURITY & COMPLIANCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• All passwords hashed with bcrypt (cost 12)
+• JWT access token: 15 min expiry
+• JWT refresh token: 30 days expiry, stored in Redis
+• OTP: 6-digit, expires in 5 minutes, max 3 attempts
+• Rate limiting on all auth endpoints (5 req/min per IP)
+• Media upload: validate file type server-side (not just extension)
+• SQL: use parameterized queries only, no raw string concat
+• CORS: whitelist only vaanjay.com and localhost in dev
+• HTTPS enforced everywhere
+• Admin routes protected by both JWT and is_admin DB check
+• Sensitive actions (password change, UPI send) require
+re-authentication or OTP confirmation
+• PDPA/IT Act 2000 compliant data handling (India)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 12 — FOLDER STRUCTURE TO GENERATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generate the following folder and file structure completely:
+vaanjay/
+├── apps/
+│ ├── mobile/ (React Native - Expo bare)
+│ │ ├── src/
+│ │ │ ├── screens/ (all screens listed in Section 4)
+│ │ │ ├── components/ (shared UI components)
+│ │ │ ├── navigation/ (stack and tab navigators)
+│ │ │ ├── store/ (Zustand stores)
+│ │ │ ├── hooks/ (custom hooks)
+│ │ │ ├── api/ (API client functions)
+│ │ │ ├── utils/
+│ │ │ ├── locales/ (i18n JSON files, Tamil first)
+│ │ │ └── assets/
+│ │ ├── android/
+│ │ ├── ios/
+│ │ └── app.json
+│ │
+│ ├── web/ (Next.js 14)
+│ │ ├── app/
+│ │ │ ├── (auth)/
+│ │ │ ├── (main)/
+│ │ │ ├── admin/ (admin panel pages)
+│ │ │ └── api/ (Next.js API routes proxy)
+│ │ ├── components/
+│ │ ├── lib/
+│ │ └── public/
+│ │
+├── services/
+│ ├── api/ (Go + Fiber backend)
+│ │ ├── cmd/main.go
+│ │ ├── internal/
+│ │ │ ├── handlers/
+│ │ │ ├── middleware/
+│ │ │ ├── models/
+│ │ │ ├── repository/
+│ │ │ ├── services/
+│ │ │ └── websocket/
+│ │ ├── migrations/ (SQL migration files)
+│ │ └── go.mod
+│ │
+│ └── rtc/ (WebRTC signaling in Go)
+│ ├── main.go
+│ └── signaling/
+│
+├── packages/
+│ ├── ui/ (shared components)
+│ └── types/ (shared TS types)
+│
+├── docker-compose.yml (PostgreSQL + Redis + API + Web)
+├── .env.example
+├── turbo.json
+└── package.json
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 13 — BUILD ORDER INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Build in this exact order to avoid dependency issues:
+Step 1: Generate monorepo scaffold (turbo.json, root package.json)
+Step 2: Generate all SQL migration files in /services/api/migrations/
+Step 3: Build Go backend — models, repositories, handlers, middleware
+Step 4: Build WebSocket server and WebRTC signaling server
+Step 5: Build shared TypeScript types in /packages/types/
+Step 6: Build shared UI component library in /packages/ui/
+Step 7: Build Next.js web app — auth pages first, then main app,
+then admin panel
+Step 8: Build React Native mobile app — auth screens first,
+then tab screens, then all stacks
+Step 9: Build i18n locale files — Tamil first, then English,
+then other languages
+Step 10: Generate docker-compose.yml and .env.example
+Step 11: Generate README.md with full setup, run, and deploy
+instructions in both Tamil and English
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINAL INSTRUCTIONS TO THE AI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Do not use any placeholder like "TODO" or "add logic here".
+Every function must be fully implemented.
+• Do not skip any screen, route, or component listed above.
+• Every API route must have input validation and proper error responses.
+• All UI must be pixel-perfect, mobile-first, dark mode ready.
+• App name "VAANJAY" (வாஞ்செய்) must appear in the splash screen,
+app bar, and browser tab title.
+• The app tagline in Tamil: "உங்கள் உலகம், உங்கள் குரல்"
+(Translation: "Your world, your voice")
+• Begin with Step 1 immediately. After each step confirm completion
+before proceeding to the next. 
