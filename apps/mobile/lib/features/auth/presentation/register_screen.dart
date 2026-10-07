@@ -6,6 +6,7 @@ import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -31,6 +32,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       setState(() => _error = 'Registration failed');
     } finally {
       setState(() => _loading = false);
+      ref.read(authProvider.notifier).signIn();
     }
   }
 

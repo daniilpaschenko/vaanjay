@@ -6,6 +6,7 @@ import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -28,6 +29,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() => _error = 'Login failed');
     } finally {
       setState(() => _loading = false);
+      ref.read(authProvider.notifier).signIn();
     }
   }
 
