@@ -3,12 +3,12 @@
 
 import React from 'react'
 import { AuthProvider } from './src/store/AuthContext' // for screens where exists 'useAuth()'
-import { LoginScreen } from './src/screens/LoginScreen' // screen that i need to view
+import { RegisterScreen } from './src/screens/RegisterScreen' // screen that i need to view
 
 export default function App() {
   return (
     <AuthProvider>
-      <LoginScreen /> 
+      <RegisterScreen /> 
     </AuthProvider>
   )
 }
