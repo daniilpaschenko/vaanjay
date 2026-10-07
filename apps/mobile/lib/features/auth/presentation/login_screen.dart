@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_paths.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -25,19 +27,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {} catch (e) {
       setState(() => _error = 'Login failed');
     } finally {
-      setState(() {
-        _loading = false;
-      });
+      setState(() => _loading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: AppColors.background,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppDimens.screenPadding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -48,164 +48,171 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Text(
                     'VAANJAY',
                     style: TextStyle(
-                      fontSize: 42,
+                      fontSize: AppDimens.displayTitle,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.title,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: AppDimens.titleGap),
                   Text(
                     'vaanjay',
                     style: TextStyle(
-                      fontSize: 20,
-                      color: Color(0xFF2563EB),
+                      fontSize: AppDimens.taglineLarge,
+                      color: AppColors.primary,
                       fontFamily: 'Noto Sans Tamil',
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: AppDimens.subtitleGap),
                   Text(
                     'Sign in to continue',
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF475569),
+                      fontSize: AppDimens.bodyText,
+                      color: AppColors.subtitle,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: AppDimens.sectionGap),
 
               // form
               TextField(
                 controller: _credentialContoller,
                 autocorrect: false,
                 style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF0F172A),
+                  fontSize: AppDimens.inputText,
+                  color: AppColors.title,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Username, email, or phone',
-                  hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+                  hintStyle: const TextStyle(color: AppColors.hint),
                   filled: true,
-                  fillColor: const Color(0xFFF8FAFC),
-                  contentPadding: const EdgeInsets.all(16),
+                  fillColor: AppColors.fieldBackground,
+                  contentPadding:
+                      const EdgeInsets.all(AppDimens.fieldPadding),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
+                    borderSide: const BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
+                    borderSide: const BorderSide(color: AppColors.border),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppDimens.formGap),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
                 style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF0F172A),
+                  fontSize: AppDimens.inputText,
+                  color: AppColors.title,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+                  hintStyle: const TextStyle(color: AppColors.hint),
                   filled: true,
-                  fillColor: const Color(0xFFF8FAFC),
-                  contentPadding: const EdgeInsets.all(16),
+                  fillColor: AppColors.fieldBackground,
+                  contentPadding:
+                      const EdgeInsets.all(AppDimens.fieldPadding),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
+                    borderSide: const BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
+                    borderSide: const BorderSide(color: AppColors.border),
                   ),
                 ),
               ),
 
               if (_error != null) ...[
-                const SizedBox(height: 14),
+                const SizedBox(height: AppDimens.formGap),
                 Text(
                   _error!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFFDC2626),
+                    fontSize: AppDimens.bodyText,
+                    color: AppColors.error,
                   ),
                 ),
               ],
 
-              const SizedBox(height: 18),
+              const SizedBox(height: AppDimens.buttonGap),
               GestureDetector(
                 onTap: _loading ? null : _login,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppDimens.buttonPadding),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.primary,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.buttonRadius),
                   ),
                   child: Text(
                     _loading ? 'Signing in...' : 'Sign In',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: AppDimens.buttonText,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFFFFFFF),
+                      color: AppColors.onPrimary,
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: AppDimens.formGap),
               HoverLink(
                 text: 'Use OTP instead',
                 onTap: () {},
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppDimens.formGap),
               HoverLink(
                 text: 'Forgot password?',
                 onTap: () {},
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: AppDimens.formGap),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppDimens.dividerPadding),
                 child: Row(
                   children: [
                     Expanded(
                       child: Container(
-                        height: 1,
-                        color: const Color(0xFFE2E8F0),
+                        height: AppDimens.dividerLineHeight,
+                        color: AppColors.border,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppDimens.dividerPartGap),
                     const Text(
                       'or',
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF94A3B8),
+                        fontSize: AppDimens.caption,
+                        color: AppColors.hint,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppDimens.dividerPartGap),
                     Expanded(
                       child: Container(
-                        height: 1,
-                        color: const Color(0xFFE2E8F0),
+                        height: AppDimens.dividerLineHeight,
+                        color: AppColors.border,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppDimens.formGap),
               HoverLink(
                 text: 'Create new account',
                 onTap: () => context.go(RoutePaths.register),
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: AppDimens.bodyText,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF2563EB),
+                  color: AppColors.primary,
                 ),
               ),
             ],

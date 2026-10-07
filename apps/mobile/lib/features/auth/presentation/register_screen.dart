@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_paths.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -45,11 +47,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: AppColors.background,
       resizeToAvoidBottomInset: true,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppDimens.screenPadding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,47 +62,47 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Text(
                     'VAANJAY',
                     style: TextStyle(
-                      fontSize: 36,
+                      fontSize: AppDimens.displayTitleSmall,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.title,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: AppDimens.titleGap),
                   Text(
                     'vaanjay - new account',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF2563EB),
+                      fontSize: AppDimens.tagline,
+                      color: AppColors.primary,
                       fontFamily: 'Noto Sans Tamil',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppDimens.headerGap),
 
               // form
               _Field(
                 controller: _usernameController,
                 hint: 'Username',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.registerFormGap),
               _Field(
                 controller: _fullNameController,
                 hint: 'Full Name',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.registerFormGap),
               _Field(
                 controller: _emailController,
                 hint: 'Email',
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.registerFormGap),
               _Field(
                 controller: _phoneController,
                 hint: 'Phone Number',
                 keyboardType: TextInputType.phone,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.registerFormGap),
               _Field(
                 controller: _passwordController,
                 hint: 'Password',
@@ -108,39 +110,40 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
 
               if (_error != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: AppDimens.registerFormGap),
                 Text(
                   _error!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFFDC2626),
+                    fontSize: AppDimens.bodyText,
+                    color: AppColors.error,
                   ),
                 ),
               ],
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppDimens.registerButtonGap),
               GestureDetector(
                 onTap: _loading ? null : _register,
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppDimens.buttonPadding),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.primary,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.buttonRadius),
                   ),
                   child: Text(
                     _loading ? 'Creating...' : 'Create Account',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: AppDimens.buttonText,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFFFFFFF),
+                      color: AppColors.onPrimary,
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: AppDimens.registerLinkGap),
               HoverLink(
                 text: 'Already have an account? Sign in',
                 onTap: () => context.go(RoutePaths.login),
@@ -174,22 +177,22 @@ class _Field extends StatelessWidget {
       obscureText: obscure,
       autocorrect: false,
       style: const TextStyle(
-        fontSize: 16,
-        color: Color(0xFF0F172A),
+        fontSize: AppDimens.inputText,
+        color: AppColors.title,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        hintStyle: const TextStyle(color: AppColors.hint),
         filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        contentPadding: const EdgeInsets.all(16),
+        fillColor: AppColors.fieldBackground,
+        contentPadding: const EdgeInsets.all(AppDimens.fieldPadding),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(AppDimens.inputRadius),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(AppDimens.inputRadius),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
       ),
     );

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+import '../theme/app_dimens.dart';
+
 class HoverLink extends StatelessWidget {
   const HoverLink({
     super.key,
@@ -16,8 +19,11 @@ class HoverLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveStyle =
-        style ?? const TextStyle(fontSize: 14, color: Color(0xFF2563EB));
+    final effectiveStyle = style ??
+        const TextStyle(
+          fontSize: AppDimens.bodyText,
+          color: AppColors.primary,
+        );
     final tp = TextPainter(
       text: TextSpan(text: text, style: effectiveStyle),
       textDirection: Directionality.of(context),
@@ -25,11 +31,11 @@ class HoverLink extends StatelessWidget {
     )..layout();
     return Center(
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppDimens.linkRadius),
         onTap: onTap,
         child: Padding(
-          padding:
-              padding.add(EdgeInsets.symmetric(horizontal: tp.width * 0.06)),
+          padding: padding.add(EdgeInsets.symmetric(
+              horizontal: tp.width * AppDimens.linkWidthFactor)),
           child: Text(text, style: effectiveStyle),
         ),
       ),

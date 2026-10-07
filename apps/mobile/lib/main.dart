@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -15,10 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'VAANJAY',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        fontFamily: 'Inter',
-      ),
+      theme: AppTheme.light,
       routerConfig: appRouter,
     );
   }
