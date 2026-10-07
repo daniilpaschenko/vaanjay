@@ -37,6 +37,23 @@ void main() {
     expect(find.byType(TextField), findsNWidgets(2));
   });
 
+  testWidgets('Login links open OTP and forgot password screens',
+      (WidgetTester tester) async {
+    await _openLogin(tester);
+
+    await tester.tap(find.text('Forgot password?'));
+    await tester.pumpAndSettle();
+    expect(find.text('Forgot Password'), findsOneWidget);
+
+    await tester.tap(find.text('Back to Login'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sign in to continue'), findsOneWidget);
+
+    await tester.tap(find.text('Use OTP instead'));
+    await tester.pumpAndSettle();
+    expect(find.text('OTP Verify'), findsOneWidget);
+  });
+
   testWidgets('Login navigates to register screen', (WidgetTester tester) async {
     await _openLogin(tester);
 
@@ -64,6 +81,26 @@ void main() {
     await _openLogin(tester);
 
     await tester.tap(find.text('Sign In'));
+    await tester.pumpAndSettle();
+    expect(find.text('Home'), findsOneWidget);
+
+    // Tab bar: every icon opens its own tab
+    await tester.tap(find.text('V'));
+    await tester.pumpAndSettle();
+    expect(find.text('Vibez'), findsOneWidget);
+    await tester.tap(find.text('C'));
+    await tester.pumpAndSettle();
+    expect(find.text('Create'), findsOneWidget);
+    await tester.tap(find.text('E'));
+    await tester.pumpAndSettle();
+    expect(find.text('Explore'), findsOneWidget);
+    await tester.tap(find.text('N'));
+    await tester.pumpAndSettle();
+    expect(find.text('Notifications'), findsOneWidget);
+    await tester.tap(find.text('M'));
+    await tester.pumpAndSettle();
+    expect(find.text('Messages'), findsOneWidget);
+    await tester.tap(find.text('H'));
     await tester.pumpAndSettle();
     expect(find.text('Home'), findsOneWidget);
 
