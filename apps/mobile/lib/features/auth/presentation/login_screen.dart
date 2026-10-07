@@ -163,19 +163,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
 
               const SizedBox(height: AppDimens.formGap),
-              HoverLink(
-                text: 'Use OTP instead',
-                onTap: () {},
-                padding:
-                    const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
-              ),
-              const SizedBox(height: AppDimens.formGap),
-              HoverLink(
-                text: 'Forgot password?',
-                onTap: () {},
-                padding:
-                    const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
-              ),
+                HoverLink(
+                  text: 'Use OTP instead',
+                  onTap: () => context.go(RoutePaths.otpVerify),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
+                ),
+                const SizedBox(height: AppDimens.formGap),
+                HoverLink(
+                  text: 'Forgot password?',
+                  onTap: () => context.go(RoutePaths.forgotPassword),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
+                ),
 
               const SizedBox(height: AppDimens.formGap),
               Padding(
