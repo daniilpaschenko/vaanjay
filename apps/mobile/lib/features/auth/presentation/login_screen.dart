@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_paths.dart';
+import '../../../core/widgets/hover_link.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -156,17 +157,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
 
               const SizedBox(height: 14),
-              _Link(
+              HoverLink(
                 text: 'Use OTP instead',
                 onTap: () {},
+                padding: const EdgeInsets.symmetric(vertical: 4),
               ),
               const SizedBox(height: 14),
-              _Link(
+              HoverLink(
                 text: 'Forgot password?',
                 onTap: () {},
+                padding: const EdgeInsets.symmetric(vertical: 4),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 14),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
@@ -195,48 +198,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
-              InkWell(
+              const SizedBox(height: 14),
+              HoverLink(
+                text: 'Create new account',
                 onTap: () => context.go(RoutePaths.register),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    'Create new account',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2563EB),
-                    ),
-                  ),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2563EB),
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Link extends StatelessWidget {
-  const _Link({required this.text, required this.onTap});
-
-  final String text;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF2563EB),
           ),
         ),
       ),

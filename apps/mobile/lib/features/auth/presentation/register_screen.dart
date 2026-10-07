@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_paths.dart';
+import '../../../core/widgets/hover_link.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -140,16 +141,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
 
               const SizedBox(height: 20),
-              InkWell(
+              HoverLink(
+                text: 'Already have an account? Sign in',
                 onTap: () => context.go(RoutePaths.login),
-                child: const Text(
-                  'Already have an account? Sign in',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF2563EB),
-                  ),
-                ),
               ),
             ],
           ),
