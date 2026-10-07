@@ -25,4 +25,8 @@ abstract final class AppColors {
 
   /// Validation errors
   static const error = Color(0xFFDC2626);
+
+  /// Bottom tab bar icons.
+  static const navIconBackground = Color(0xFFF1F5F9);
+  static const navIconMuted = Color(0xFF64748B);
 }

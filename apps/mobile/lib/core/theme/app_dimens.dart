@@ -29,12 +29,24 @@ abstract final class AppDimens {
   // Font sizes
   static const displayTitle = 42.0; // login: VAANJAY
   static const displayTitleSmall = 36.0; // register: VAANJAY
+  static const splashTitle = 48.0;
+  static const splashTagline = 24.0;
   static const taglineLarge = 20.0;
   static const tagline = 16.0;
   static const inputText = 16.0;
   static const buttonText = 16.0;
   static const bodyText = 14.0;
   static const caption = 13.0;
+
+  // Splash
+  static const spinnerGap = 40.0;
+
+  // Bottom tab bar
+  static const tabBarHeight = 60.0;
+  static const tabBarPadding = 8.0;
+  static const tabBorderWidth = 1.0;
+  static const tabIconSize = 36.0;
+  static const tabIconRadius = 8.0;
 
   // Hover link highlight width, as a fraction of the text width (per side)
   static const linkWidthFactor = 0.06;
