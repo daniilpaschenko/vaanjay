@@ -39,7 +39,8 @@ export function OnboardingScreen({ navigation }: any) {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(e) => {
+        scrollEventThrottle={16}
+        onScroll={(e) => {
           const index = Math.round(e.nativeEvent.contentOffset.x / width)
           setCurrentIndex(index)
         }}
@@ -74,7 +75,12 @@ export function OnboardingScreen({ navigation }: any) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nextButton}
-                onPress={() => flatListRef.current?.scrollToIndex({ index: currentIndex + 1 })}
+                onPress={() =>
+                  flatListRef.current?.scrollToOffset({
+                    offset: width * (currentIndex + 1),
+                    animated: true,
+                  })
+                }
               >
                 <Text style={styles.nextText}>Next</Text>
               </TouchableOpacity>
