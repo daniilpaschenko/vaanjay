@@ -6,6 +6,7 @@ import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -124,25 +125,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ],
 
               const SizedBox(height: AppDimens.registerButtonGap),
-              GestureDetector(
+              PrimaryButton(
+                text: _loading ? 'Creating...' : 'Create Account',
                 onTap: _loading ? null : _register,
-                child: Container(
-                  padding: const EdgeInsets.all(AppDimens.buttonPadding),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.buttonRadius),
-                  ),
-                  child: Text(
-                    _loading ? 'Creating...' : 'Create Account',
-                    style: const TextStyle(
-                      fontSize: AppDimens.buttonText,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                ),
               ),
 
               const SizedBox(height: AppDimens.registerLinkGap),

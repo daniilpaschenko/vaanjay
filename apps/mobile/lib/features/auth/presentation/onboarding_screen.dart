@@ -5,6 +5,7 @@ import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../../../core/widgets/primary_button.dart';
 
 class _Slide {
   const _Slide({
@@ -214,56 +215,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       vertical: AppDimens.onboardingSkipVPadding),
                 ),
                 const Spacer(),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: _next,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppDimens.onboardingButtonHPadding,
-                        vertical: AppDimens.onboardingButtonPadding,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius:
-                            BorderRadius.circular(AppDimens.buttonRadius),
-                      ),
-                      child: const Text(
-                        'Next',
-                        style: TextStyle(
-                          fontSize: AppDimens.buttonText,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.onPrimary,
-                        ),
-                      ),
-                    ),
+                PrimaryButton(
+                  text: 'Next',
+                  onTap: _next,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimens.onboardingButtonHPadding,
+                    vertical: AppDimens.onboardingButtonPadding,
                   ),
                 ),
               ] else ...[
                 Expanded(
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: _finish,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: AppDimens.onboardingButtonPadding),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius:
-                              BorderRadius.circular(AppDimens.buttonRadius),
-                        ),
-                        child: const Text(
-                          'Get Started',
-                          style: TextStyle(
-                            fontSize: AppDimens.buttonText,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.onPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: PrimaryButton(
+                    text: 'Get Started',
+                    onTap: _finish,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: AppDimens.onboardingButtonPadding),
                   ),
                 ),
               ],

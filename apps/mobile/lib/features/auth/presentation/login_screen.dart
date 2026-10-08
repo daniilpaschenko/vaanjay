@@ -6,6 +6,7 @@ import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -140,26 +141,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ],
 
               const SizedBox(height: AppDimens.buttonGap),
-              GestureDetector(
+              PrimaryButton(
+                text: _loading ? 'Signing in...' : 'Sign In',
                 onTap: _loading ? null : _login,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppDimens.buttonPadding),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.buttonRadius),
-                  ),
-                  child: Text(
-                    _loading ? 'Signing in...' : 'Sign In',
-                    style: const TextStyle(
-                      fontSize: AppDimens.buttonText,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                ),
               ),
 
               const SizedBox(height: AppDimens.formGap),
