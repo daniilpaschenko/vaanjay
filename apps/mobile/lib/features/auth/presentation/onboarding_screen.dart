@@ -51,18 +51,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  static const _dotInactive = Color(0xFFCBD5E1);
-  static const _iconBackground = Color(0xFFEEF2FF);
-
-  static const _slidePadding = 32.0;
-  static const _footerHPadding = 32.0;
-  static const _footerBPadding = 48.0;
-  static const _dotsGap = 8.0;
-  static const _dotsBottomGap = 32.0;
-  static const _iconContainerGap = 40.0;
-  static const _titleGap = 4.0;
-  static const _titleBottomGap = 24.0;
-  static const _subtitleGap = 8.0;
+  static const _slideTransitionDuration = Duration(milliseconds: 460);
 
   final _pageController = PageController();
   int _currentIndex = 0;
@@ -71,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _next() {
     _pageController.nextPage(
-      duration: const Duration(milliseconds: 460),
+      duration: _slideTransitionDuration,
       curve: Curves.ease,
     );
   }
@@ -106,22 +95,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildSlide(_Slide slide) {
     return Padding(
-      padding: const EdgeInsets.all(_slidePadding),
+      padding: const EdgeInsets.all(AppDimens.onboardingSlidePadding),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 120,
-            height: 120,
-            margin: const EdgeInsets.only(bottom: _iconContainerGap),
+            width: AppDimens.onboardingIconSize,
+            height: AppDimens.onboardingIconSize,
+            margin: const EdgeInsets.only(bottom: AppDimens.onboardingIconGap),
             decoration: const BoxDecoration(
-              color: _iconBackground,
+              color: AppColors.iconBackground,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Container(
-                width: 50,
-                height: 50,
+                width: AppDimens.onboardingIconInnerSize,
+                height: AppDimens.onboardingIconInnerSize,
                 decoration: const BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
@@ -133,39 +122,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             slide.titleTa,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 28,
+              fontSize: AppDimens.onboardingTitleTa,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
               fontFamily: 'Noto Sans Tamil',
             ),
           ),
-          const SizedBox(height: _titleGap),
+          const SizedBox(height: AppDimens.onboardingTitleGap),
           Text(
             slide.title,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: AppDimens.onboardingTitle,
               color: AppColors.title,
             ),
           ),
-          const SizedBox(height: _titleBottomGap),
+          const SizedBox(height: AppDimens.onboardingTitleBottomGap),
           Text(
             slide.subtitleTa,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 15,
-              height: 24 / 15,
+              fontSize: AppDimens.onboardingSubtitleTa,
+              height: AppDimens.onboardingSubtitleTaLineHeight /
+                  AppDimens.onboardingSubtitleTa,
               color: AppColors.subtitle,
               fontFamily: 'Noto Sans Tamil',
             ),
           ),
-          const SizedBox(height: _subtitleGap),
+          const SizedBox(height: AppDimens.onboardingSubtitleGap),
           Text(
             slide.subtitle,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 13,
-              height: 20 / 13,
+              fontSize: AppDimens.onboardingSubtitle,
+              height: AppDimens.onboardingSubtitleLineHeight /
+                  AppDimens.onboardingSubtitle,
               color: AppColors.navIconMuted,
             ),
           ),
@@ -177,8 +168,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: _footerHPadding,
-        vertical: _footerBPadding / 2,
+        horizontal: AppDimens.onboardingFooterHPadding,
+        vertical: AppDimens.onboardingFooterVPadding,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -188,21 +179,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               for (var i = 0; i < _slides.length; i++)
                 Container(
-                  width: i == _currentIndex ? 32 : 8,
-                  height: 8,
+                  width: i == _currentIndex
+                      ? AppDimens.onboardingDotWidth
+                      : AppDimens.onboardingDotHeight,
+                  height: AppDimens.onboardingDotHeight,
                   margin: EdgeInsets.only(
-                    right: i == _slides.length - 1 ? 0 : _dotsGap,
+                    right: i == _slides.length - 1
+                        ? 0
+                        : AppDimens.onboardingDotGap,
                   ),
                   decoration: BoxDecoration(
                     color: i == _currentIndex
                         ? AppColors.primary
-                        : _dotInactive,
-                    borderRadius: BorderRadius.circular(4),
+                        : AppColors.dotInactive,
+                    borderRadius:
+                        BorderRadius.circular(AppDimens.onboardingDotRadius),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: _dotsBottomGap),
+          const SizedBox(height: AppDimens.onboardingDotsBottomGap),
           Row(
             children: [
               if (!_isLast) ...[
@@ -214,7 +210,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     fontWeight: FontWeight.w500,
                     color: AppColors.navIconMuted,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppDimens.onboardingSkipVPadding),
                 ),
                 const Spacer(),
                 MouseRegion(
@@ -223,8 +220,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onTap: _next,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 14,
+                        horizontal: AppDimens.onboardingButtonHPadding,
+                        vertical: AppDimens.onboardingButtonPadding,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
@@ -249,7 +246,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: GestureDetector(
                       onTap: _finish,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: AppDimens.onboardingButtonPadding),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: AppColors.primary,

@@ -38,8 +38,35 @@ abstract final class AppDimens {
   static const bodyText = 14.0;
   static const caption = 13.0;
 
+  // Onboarding text
+  static const onboardingTitleTa = 28.0;
+  static const onboardingTitle = 18.0;
+  static const onboardingSubtitleTa = 15.0;
+  static const onboardingSubtitle = 13.0;
+  static const onboardingSubtitleTaLineHeight = 24.0;
+  static const onboardingSubtitleLineHeight = 20.0;
+
   // Splash
   static const spinnerGap = 40.0;
+
+  // Onboarding
+  static const onboardingSlidePadding = 32.0;
+  static const onboardingFooterHPadding = 32.0;
+  static const onboardingFooterVPadding = 24.0;
+  static const onboardingIconSize = 120.0;
+  static const onboardingIconInnerSize = 50.0;
+  static const onboardingIconGap = 40.0; // icon -> title
+  static const onboardingTitleGap = 4.0; // titleTa -> title
+  static const onboardingTitleBottomGap = 24.0; // title -> subtitleTa
+  static const onboardingSubtitleGap = 8.0; // subtitleTa -> subtitle
+  static const onboardingDotWidth = 32.0;
+  static const onboardingDotHeight = 8.0;
+  static const onboardingDotGap = 8.0;
+  static const onboardingDotRadius = 4.0;
+  static const onboardingDotsBottomGap = 32.0; // dots -> buttons
+  static const onboardingButtonHPadding = 32.0;
+  static const onboardingButtonPadding = 14.0; // next / get started, vertical
+  static const onboardingSkipVPadding = 8.0;
 
   // Bottom tab bar
   static const tabBarHeight = 60.0;

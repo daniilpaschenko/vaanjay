@@ -29,4 +29,10 @@ abstract final class AppColors {
   /// Bottom tab bar icons.
   static const navIconBackground = Color(0xFFF1F5F9);
   static const navIconMuted = Color(0xFF64748B);
+
+  /// Onboarding pagination dot, inactive state.
+  static const dotInactive = Color(0xFFCBD5E1);
+
+  /// Onboarding icon badge surface.
+  static const iconBackground = Color(0xFFEEF2FF);
 }
