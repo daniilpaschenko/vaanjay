@@ -12,9 +12,16 @@ Future<void> _openLogin(WidgetTester tester) async {
   expect(find.text('VAANJAY'), findsOneWidget);
   await tester.pump(const Duration(milliseconds: 1600));
   await tester.pump();
-  expect(find.text('Onboarding'), findsOneWidget);
+  expect(find.text('Unga Ulagam'), findsOneWidget);
 
+  // walk the onboarding carousel to the last slide
   await tester.tap(find.text('Next'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Next'));
+  await tester.pumpAndSettle();
+  expect(find.text('Get Started'), findsOneWidget);
+
+  await tester.tap(find.text('Get Started'));
   await tester.pumpAndSettle();
   expect(find.text('Language Select'), findsOneWidget);
 
