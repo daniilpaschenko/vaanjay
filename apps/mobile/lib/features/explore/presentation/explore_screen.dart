@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../providers/explore_provider.dart';
 
-class ExploreScreen extends StatefulWidget {
+class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
   @override
-  State<ExploreScreen> createState() => _ExploreScreenState();
+  ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
 }
 
-class _ExploreScreenState extends State<ExploreScreen> {
+class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   final _searchController = TextEditingController();
 
   @override
@@ -42,6 +44,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: AppTextField(
               controller: _searchController,
               hint: 'Search VAANJAY...',
+              onChanged: (value) =>
+                  ref.read(exploreProvider.notifier).setSearch(value),
               contentPadding: const EdgeInsets.all(AppDimens.searchPadding),
             ),
           ),
