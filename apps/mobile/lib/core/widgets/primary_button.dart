@@ -10,11 +10,15 @@ class PrimaryButton extends StatelessWidget {
     required this.onTap,
     this.padding = const EdgeInsets.symmetric(
         vertical: AppDimens.buttonPadding),
+    this.radius = AppDimens.buttonRadius,
+    this.textStyle,
   });
 
   final String text;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
+  final double radius;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +31,16 @@ class PrimaryButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppDimens.buttonRadius),
+            borderRadius: BorderRadius.circular(radius),
           ),
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: AppDimens.buttonText,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onPrimary,
-            ),
+            style: textStyle ??
+                const TextStyle(
+                  fontSize: AppDimens.buttonText,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onPrimary,
+                ),
           ),
         ),
       ),
