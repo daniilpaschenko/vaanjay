@@ -145,7 +145,7 @@ void main() {
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Language Select'), findsOneWidget);
+    expect(find.text('Choose your language'), findsOneWidget);
   });
 
   testWidgets('Get Started opens language select', (WidgetTester tester) async {
@@ -155,6 +155,6 @@ void main() {
     await tester.tap(find.text('Get Started'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Language Select'), findsOneWidget);
+    expect(find.text('Choose your language'), findsOneWidget);
   });
 }
