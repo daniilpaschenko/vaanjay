@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -10,18 +11,18 @@ import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/screen_header.dart';
 import '../../../core/widgets/secondary_button.dart';
 import '../../../core/widgets/segmented_tabs.dart';
+import '../providers/payment_provider.dart';
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen extends ConsumerStatefulWidget {
   const PaymentScreen({super.key});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   static const _tabs = ['Send', 'Request', 'History'];
 
-  int _tabIndex = 0;
   final _receiverController = TextEditingController();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
@@ -36,6 +37,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final payment = ref.watch(paymentProvider);
+    final tabIndex = PaymentTab.values.indexOf(payment.tab);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -66,8 +69,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               child: SegmentedTabs(
                 labels: _tabs,
-                selectedIndex: _tabIndex,
-                onChanged: (index) => setState(() => _tabIndex = index),
+                selectedIndex: tabIndex,
+                onChanged: (index) => ref
+                    .read(paymentProvider.notifier)
+                    .setTab(PaymentTab.values[index]),
                 style: SegmentedTabsStyle.pill,
               ),
             ),
@@ -76,8 +81,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppDimens.contentPadding,
                 ),
-                child: switch (_tabIndex) {
-                  0 => _buildSend(),
+                child: switch (tabIndex) {
+                  0 => _buildSend(payment),
                   1 => _buildRequest(),
                   _ => _buildHistory(),
                 },
@@ -89,7 +94,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildSend() {
+  Widget _buildSend(PaymentState payment) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -128,6 +133,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           child: AppTextField(
             controller: _receiverController,
             hint: 'Username or phone number',
+            onChanged: (value) =>
+                ref.read(paymentProvider.notifier).setReceiver(value),
             contentPadding: const EdgeInsets.all(AppDimens.searchPadding),
           ),
         ),
@@ -139,14 +146,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
           child: AppTextField(
             controller: _noteController,
             hint: 'What is this for?',
+            onChanged: (value) =>
+                ref.read(paymentProvider.notifier).setNote(value),
             contentPadding: const EdgeInsets.all(AppDimens.searchPadding),
           ),
         ),
         const SizedBox(height: AppDimens.contentPadding),
         PrimaryButton(
-          text: 'Pay Rs${_amountController.text.isEmpty ? '0.00' : _amountController.text}',
-          onTap: _receiverController.text.isEmpty ||
-                  _amountController.text.isEmpty
+          text: 'Pay Rs${payment.amount.isEmpty ? '0.00' : payment.amount}',
+          onTap: payment.receiver.isEmpty || payment.amount.isEmpty
               ? null
               : () => context.pop(),
           padding: const EdgeInsets.all(AppDimens.buttonPadding),
@@ -239,6 +247,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             controller: _amountController,
             hint: '0.00',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (value) =>
+                ref.read(paymentProvider.notifier).setAmount(value),
             contentPadding: const EdgeInsets.all(AppDimens.searchPadding),
             textStyle: const TextStyle(
               color: AppColors.title,
