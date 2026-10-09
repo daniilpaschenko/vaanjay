@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../providers/create_provider.dart';
 
-class CreateScreen extends StatefulWidget {
+class CreateScreen extends ConsumerStatefulWidget {
   const CreateScreen({super.key});
 
   @override
-  State<CreateScreen> createState() => _CreateScreenState();
+  ConsumerState<CreateScreen> createState() => _CreateScreenState();
 }
 
-class _CreateScreenState extends State<CreateScreen> {
+class _CreateScreenState extends ConsumerState<CreateScreen> {
   static const _options = [
     ('photo', 'Photo'),
     ('reel', 'Reel'),
@@ -20,15 +22,14 @@ class _CreateScreenState extends State<CreateScreen> {
     ('text', 'Text Post'),
   ];
 
-  String? _postType;
-
   @override
   Widget build(BuildContext context) {
+    final postType = ref.watch(createProvider).postType;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         top: false,
-        child: _postType == null ? _buildOptions() : _buildEditor(),
+        child: postType == null ? _buildOptions() : _buildEditor(postType),
       ),
     );
   }
@@ -65,7 +66,8 @@ class _CreateScreenState extends State<CreateScreen> {
                 for (final option in _options)
                   _OptionCard(
                     label: option.$2,
-                    onTap: () => setState(() => _postType = option.$1),
+                    onTap: () =>
+                        ref.read(createProvider.notifier).select(option.$1),
                   ),
               ],
             ),
@@ -75,8 +77,8 @@ class _CreateScreenState extends State<CreateScreen> {
     );
   }
 
-  Widget _buildEditor() {
-    final isText = _postType == 'text';
+  Widget _buildEditor(String postType) {
+    final isText = postType == 'text';
     return Column(
       children: [
         Container(
@@ -93,7 +95,7 @@ class _CreateScreenState extends State<CreateScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () => setState(() => _postType = null),
+                onTap: () => ref.read(createProvider.notifier).reset(),
                 child: const Text(
                   'Cancel',
                   style: TextStyle(
@@ -103,14 +105,16 @@ class _CreateScreenState extends State<CreateScreen> {
                 ),
               ),
               Text(
-                'New $_postType',
+                'New $postType',
                 style: const TextStyle(
                   color: AppColors.title,
                   fontSize: AppDimens.buttonText,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              _ShareButton(onTap: () => setState(() => _postType = null)),
+              _ShareButton(
+                onTap: () => ref.read(createProvider.notifier).reset(),
+              ),
             ],
           ),
         ),
