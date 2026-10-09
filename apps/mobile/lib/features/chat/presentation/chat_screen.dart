@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -7,19 +8,19 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/avatar_circle.dart';
 import '../../../core/widgets/back_link.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../providers/chat_provider.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key, this.name = 'User'});
 
   final String name;
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _inputController = TextEditingController();
-  final _messages = <({String content, bool isMine})>[];
 
   @override
   void dispose() {
@@ -30,14 +31,13 @@ class _ChatScreenState extends State<ChatScreen> {
   void _send() {
     final text = _inputController.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _messages.add((content: text, isMine: true));
-      _inputController.clear();
-    });
+    ref.read(chatProvider.notifier).send(text);
+    _inputController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
+    final messages = ref.watch(chatProvider).messages;
     return Scaffold(
       backgroundColor: AppColors.background,
       resizeToAvoidBottomInset: true,
@@ -45,7 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           _buildHeader(),
           Expanded(
-            child: _messages.isEmpty
+            child: messages.isEmpty
                 ? const EmptyState(
                     title: 'No messages yet',
                     subtitle: 'Say hello to start the conversation',
@@ -55,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(AppDimens.contentPadding),
                     children: [
-                      for (final message in _messages)
+                      for (final message in messages)
                         _MessageBubble(
                           content: message.content,
                           isMine: message.isMine,

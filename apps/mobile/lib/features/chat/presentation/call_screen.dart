@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/avatar_circle.dart';
+import '../providers/call_provider.dart';
 
-class CallScreen extends StatefulWidget {
+class CallScreen extends ConsumerStatefulWidget {
   const CallScreen({
     super.key,
     this.type = 'audio',
@@ -18,23 +20,20 @@ class CallScreen extends StatefulWidget {
   final String callerName;
 
   @override
-  State<CallScreen> createState() => _CallScreenState();
+  ConsumerState<CallScreen> createState() => _CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> {
+class _CallScreenState extends ConsumerState<CallScreen> {
   Timer? _timer;
-  int _duration = 0;
-  bool _isMuted = false;
-  bool _isSpeaker = false;
-  bool _isCameraFront = true;
-  bool _isOngoing = true;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_isOngoing) setState(() => _duration++);
-    });
+    ref.read(callProvider.notifier).reset();
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => ref.read(callProvider.notifier).tick(),
+    );
   }
 
   @override
@@ -43,19 +42,20 @@ class _CallScreenState extends State<CallScreen> {
     super.dispose();
   }
 
-  String get _formattedDuration {
-    final minutes = (_duration ~/ 60).toString().padLeft(2, '0');
-    final seconds = (_duration % 60).toString().padLeft(2, '0');
+  String _formatDuration(int duration) {
+    final minutes = (duration ~/ 60).toString().padLeft(2, '0');
+    final seconds = (duration % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
   void _endCall() {
-    setState(() => _isOngoing = false);
+    ref.read(callProvider.notifier).end();
     context.pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final call = ref.watch(callProvider);
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
       body: SafeArea(
@@ -87,7 +87,9 @@ class _CallScreenState extends State<CallScreen> {
                     ),
                   ),
                   Text(
-                    _isOngoing ? _formattedDuration : 'Connecting...',
+                    call.isOngoing
+                        ? _formatDuration(call.duration)
+                        : 'Connecting...',
                     style: const TextStyle(
                       color: AppColors.darkMuted,
                       fontSize: AppDimens.inputText,
@@ -101,25 +103,27 @@ class _CallScreenState extends State<CallScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _ControlButton(
-                        icon: _isMuted ? 'U' : 'M',
-                        label: _isMuted ? 'Unmute' : 'Mute',
-                        active: _isMuted,
-                        onTap: () => setState(() => _isMuted = !_isMuted),
+                        icon: call.isMuted ? 'U' : 'M',
+                        label: call.isMuted ? 'Unmute' : 'Mute',
+                        active: call.isMuted,
+                        onTap: () =>
+                            ref.read(callProvider.notifier).toggleMute(),
                       ),
                       const SizedBox(width: AppDimens.settingsSectionGap),
                       _ControlButton(
                         icon: 'SP',
                         label: 'Speaker',
-                        active: _isSpeaker,
-                        onTap: () => setState(() => _isSpeaker = !_isSpeaker),
+                        active: call.isSpeaker,
+                        onTap: () =>
+                            ref.read(callProvider.notifier).toggleSpeaker(),
                       ),
                       if (widget.type == 'video') ...[
                         const SizedBox(width: AppDimens.settingsSectionGap),
                         _ControlButton(
                           icon: 'CF',
                           label: 'Flip',
-                          onTap: () => setState(
-                              () => _isCameraFront = !_isCameraFront),
+                          onTap: () =>
+                              ref.read(callProvider.notifier).flipCamera(),
                         ),
                       ],
                     ],
