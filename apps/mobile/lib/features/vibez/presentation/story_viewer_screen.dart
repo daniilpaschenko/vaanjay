@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/avatar_circle.dart';
+import '../providers/story_provider.dart';
 
-class StoryViewerScreen extends StatefulWidget {
+class StoryViewerScreen extends ConsumerStatefulWidget {
   const StoryViewerScreen({
     super.key,
     this.storyCount = 1,
@@ -16,20 +18,22 @@ class StoryViewerScreen extends StatefulWidget {
   final int initialIndex;
 
   @override
-  State<StoryViewerScreen> createState() => _StoryViewerScreenState();
+  ConsumerState<StoryViewerScreen> createState() => _StoryViewerScreenState();
 }
 
-class _StoryViewerScreenState extends State<StoryViewerScreen>
+class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     with SingleTickerProviderStateMixin {
   static const _storyDuration = Duration(milliseconds: 5000);
 
   late final AnimationController _progress;
-  late int _currentIndex;
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
+    ref.read(storyProvider.notifier).init(
+          count: widget.storyCount,
+          initialIndex: widget.initialIndex,
+        );
     _progress = AnimationController(vsync: this, duration: _storyDuration)
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) _advance();
@@ -44,8 +48,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
   }
 
   void _advance() {
-    if (_currentIndex < widget.storyCount - 1) {
-      setState(() => _currentIndex++);
+    if (ref.read(storyProvider.notifier).next()) {
       _progress.forward(from: 0);
     } else {
       context.pop();
@@ -53,17 +56,17 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
   }
 
   void _goBackStory() {
-    if (_currentIndex > 0) {
-      setState(() => _currentIndex--);
+    if (ref.read(storyProvider.notifier).previous()) {
       _progress.forward(from: 0);
     }
   }
 
   void _handleTap(TapUpDetails details, double width) {
+    final currentIndex = ref.read(storyProvider).currentIndex;
     final x = details.localPosition.dx;
-    if (x < width * 0.3 && _currentIndex > 0) {
+    if (x < width * 0.3 && currentIndex > 0) {
       _goBackStory();
-    } else if (x > width * 0.7 && _currentIndex < widget.storyCount - 1) {
+    } else if (x > width * 0.7 && currentIndex < widget.storyCount - 1) {
       _advance();
     } else if (x > width * 0.7) {
       context.pop();
@@ -72,6 +75,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(storyProvider).currentIndex;
     final width = MediaQuery.sizeOf(context).width;
     return Scaffold(
       backgroundColor: Colors.black,
@@ -90,7 +94,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                 ),
               ),
             ),
-            _buildProgressBar(),
+            _buildProgressBar(currentIndex),
             _buildFooter(),
           ],
         ),
@@ -98,7 +102,7 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
     );
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(int currentIndex) {
     return Positioned(
       top: 50,
       left: AppDimens.listGap,
@@ -119,9 +123,9 @@ class _StoryViewerScreenState extends State<StoryViewerScreen>
                       child: AnimatedBuilder(
                         animation: _progress,
                         builder: (context, _) {
-                          final widthFactor = i < _currentIndex
+                          final widthFactor = i < currentIndex
                               ? 1.0
-                              : i == _currentIndex
+                              : i == currentIndex
                                   ? _progress.value
                                   : 0.0;
                           return FractionallySizedBox(

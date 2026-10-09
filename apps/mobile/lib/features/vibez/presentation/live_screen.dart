@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../providers/live_provider.dart';
 
-class LiveScreen extends StatefulWidget {
+class LiveScreen extends ConsumerStatefulWidget {
   const LiveScreen({super.key, this.viewerId});
 
   final String? viewerId;
 
   @override
-  State<LiveScreen> createState() => _LiveScreenState();
+  ConsumerState<LiveScreen> createState() => _LiveScreenState();
 }
 
-class _LiveScreenState extends State<LiveScreen> {
+class _LiveScreenState extends ConsumerState<LiveScreen> {
   final _titleController = TextEditingController();
   final _topicController = TextEditingController();
   final _chatController = TextEditingController();
-  final _chatMessages = <({String user, String text})>[];
-
-  bool _isLive = false;
 
   bool get _isHost => widget.viewerId == null;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(liveProvider.notifier).reset();
+  }
 
   @override
   void dispose() {
@@ -36,17 +41,16 @@ class _LiveScreenState extends State<LiveScreen> {
   void _sendChat() {
     final text = _chatController.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _chatMessages.add((user: 'You', text: text));
-      _chatController.clear();
-    });
+    ref.read(liveProvider.notifier).sendChat(text);
+    _chatController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
+    final live = ref.watch(liveProvider);
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
-      body: _isLive || !_isHost ? _buildLive() : _buildSetup(),
+      body: live.isLive || !_isHost ? _buildLive(live) : _buildSetup(),
     );
   }
 
@@ -72,16 +76,20 @@ class _LiveScreenState extends State<LiveScreen> {
               AppTextField(
                 controller: _titleController,
                 hint: 'Live stream title',
+                onChanged: (value) =>
+                    ref.read(liveProvider.notifier).setTitle(value),
               ),
               const SizedBox(height: AppDimens.contentPadding),
               AppTextField(
                 controller: _topicController,
                 hint: 'Topic tag',
+                onChanged: (value) =>
+                    ref.read(liveProvider.notifier).setTopicTag(value),
               ),
               const SizedBox(height: AppDimens.fieldGap),
               PrimaryButton(
                 text: 'Go Live',
-                onTap: () => setState(() => _isLive = true),
+                onTap: () => ref.read(liveProvider.notifier).start(),
                 textStyle: const TextStyle(
                   color: AppColors.onPrimary,
                   fontSize: 18,
@@ -95,7 +103,7 @@ class _LiveScreenState extends State<LiveScreen> {
     );
   }
 
-  Widget _buildLive() {
+  Widget _buildLive(LiveState live) {
     return SafeArea(
       top: false,
       child: Column(
@@ -129,9 +137,9 @@ class _LiveScreenState extends State<LiveScreen> {
                   ),
                 ),
                 const Spacer(),
-                const Text(
-                  '0 watching',
-                  style: TextStyle(
+                Text(
+                  '${live.viewerCount} watching',
+                  style: const TextStyle(
                     color: AppColors.darkMuted,
                     fontSize: AppDimens.bodyText,
                   ),
@@ -171,9 +179,7 @@ class _LiveScreenState extends State<LiveScreen> {
                 borderRadius: BorderRadius.circular(AppDimens.cardRadius),
               ),
               child: Text(
-                _titleController.text.isEmpty
-                    ? 'Live Stream'
-                    : _titleController.text,
+                live.title.isEmpty ? 'Live Stream' : live.title,
                 style: const TextStyle(
                   color: AppColors.navIconMuted,
                   fontSize: AppDimens.sectionTitle,
@@ -192,7 +198,7 @@ class _LiveScreenState extends State<LiveScreen> {
               child: Column(
                 children: [
                   Expanded(
-                    child: _chatMessages.isEmpty
+                    child: live.chatMessages.isEmpty
                         ? const Padding(
                             padding: EdgeInsets.only(top: 20),
                             child: Text(
@@ -207,7 +213,7 @@ class _LiveScreenState extends State<LiveScreen> {
                         : ListView(
                             padding: const EdgeInsets.all(AppDimens.listGap),
                             children: [
-                              for (final message in _chatMessages)
+                              for (final message in live.chatMessages)
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 6),
                                   child: Row(
