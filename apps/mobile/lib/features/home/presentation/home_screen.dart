@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_paths.dart';
@@ -7,14 +8,16 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/avatar_circle.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/screen_header.dart';
+import '../providers/home_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   static const _storyCount = 8;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasPosts = ref.watch(homeProvider).posts.isNotEmpty;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
@@ -55,11 +58,12 @@ class HomeScreen extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 _StoriesRow(count: _storyCount),
-                const EmptyState(
-                  title: 'Welcome to VAANJAY',
-                  subtitle:
-                      'Follow users to see their posts in your feed',
-                ),
+                if (!hasPosts)
+                  const EmptyState(
+                    title: 'Welcome to VAANJAY',
+                    subtitle:
+                        'Follow users to see their posts in your feed',
+                  ),
               ],
             ),
           ),
