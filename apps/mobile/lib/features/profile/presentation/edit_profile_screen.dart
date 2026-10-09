@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -6,22 +7,21 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/labeled_field.dart';
 import '../../../core/widgets/screen_header.dart';
+import '../providers/edit_profile_provider.dart';
 
-class EditProfileScreen extends StatefulWidget {
+class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _fullNameController = TextEditingController();
   final _usernameController = TextEditingController();
   final _bioController = TextEditingController();
   final _websiteController = TextEditingController();
   final _genderController = TextEditingController();
-
-  bool _isPrivate = false;
 
   @override
   void dispose() {
@@ -35,6 +35,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final form = ref.watch(editProfileProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -133,6 +134,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: AppTextField(
                         controller: _fullNameController,
                         hint: 'Your full name',
+                        onChanged: (value) => ref
+                            .read(editProfileProvider.notifier)
+                            .setFullName(value),
                         contentPadding:
                             const EdgeInsets.all(AppDimens.searchPadding),
                       ),
@@ -143,6 +147,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: AppTextField(
                         controller: _usernameController,
                         hint: 'username',
+                        onChanged: (value) => ref
+                            .read(editProfileProvider.notifier)
+                            .setUsername(value),
                         contentPadding:
                             const EdgeInsets.all(AppDimens.searchPadding),
                       ),
@@ -155,6 +162,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         hint: 'Tell your story...',
                         maxLines: null,
                         minLines: 4,
+                        onChanged: (value) =>
+                            ref.read(editProfileProvider.notifier).setBio(value),
                         contentPadding:
                             const EdgeInsets.all(AppDimens.searchPadding),
                       ),
@@ -165,6 +174,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: AppTextField(
                         controller: _websiteController,
                         hint: 'https://',
+                        onChanged: (value) => ref
+                            .read(editProfileProvider.notifier)
+                            .setWebsite(value),
                         contentPadding:
                             const EdgeInsets.all(AppDimens.searchPadding),
                       ),
@@ -175,6 +187,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: AppTextField(
                         controller: _genderController,
                         hint: 'Prefer not to say',
+                        onChanged: (value) => ref
+                            .read(editProfileProvider.notifier)
+                            .setGender(value),
                         contentPadding:
                             const EdgeInsets.all(AppDimens.searchPadding),
                       ),
@@ -232,9 +247,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ),
                           _PrivateSwitch(
-                            value: _isPrivate,
-                            onChanged: (value) =>
-                                setState(() => _isPrivate = value),
+                            value: form.isPrivate,
+                            onChanged: (value) => ref
+                                .read(editProfileProvider.notifier)
+                                .togglePrivate(),
                           ),
                         ],
                       ),

@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/avatar_circle.dart';
 import '../../../core/widgets/secondary_button.dart';
 import '../../../core/widgets/segmented_tabs.dart';
+import '../providers/profile_provider.dart';
 import '../widgets/profile_placeholder_grid.dart';
 import '../widgets/stat_column.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
   static const _tabs = ['Posts', 'Reels', 'Tagged'];
 
-  int _tabIndex = 0;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tabIndex = ref.watch(profileProvider).tab.index;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -97,8 +93,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: AppDimens.fieldGap),
             SegmentedTabs(
               labels: _tabs,
-              selectedIndex: _tabIndex,
-              onChanged: (index) => setState(() => _tabIndex = index),
+              selectedIndex: tabIndex,
+              onChanged: (index) => ref
+                  .read(profileProvider.notifier)
+                  .setTab(ProfileTab.values[index]),
             ),
             const ProfilePlaceholderGrid(),
           ],

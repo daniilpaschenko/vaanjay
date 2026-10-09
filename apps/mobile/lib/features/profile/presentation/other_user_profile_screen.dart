@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -7,26 +8,22 @@ import '../../../core/widgets/avatar_circle.dart';
 import '../../../core/widgets/back_link.dart';
 import '../../../core/widgets/screen_header.dart';
 import '../../../core/widgets/segmented_tabs.dart';
+import '../providers/other_user_profile_provider.dart';
 import '../widgets/profile_placeholder_grid.dart';
 import '../widgets/stat_column.dart';
 
-class OtherUserProfileScreen extends StatefulWidget {
+class OtherUserProfileScreen extends ConsumerWidget {
   const OtherUserProfileScreen({super.key, this.username = 'unknown'});
 
   final String username;
 
-  @override
-  State<OtherUserProfileScreen> createState() => _OtherUserProfileScreenState();
-}
-
-class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
   static const _tabs = ['Posts', 'Reels'];
 
-  int _tabIndex = 0;
-  bool _isFollowing = false;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileState = ref.watch(otherUserProfileProvider);
+    final isFollowing = profileState.isFollowing;
+    final tabIndex = profileState.tab.index;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -37,7 +34,7 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
               leading: BackLink(onTap: () => context.pop()),
               title: Center(
                 child: Text(
-                  '@${widget.username}',
+                  '@$username',
                   style: const TextStyle(
                     color: AppColors.title,
                     fontSize: AppDimens.inputText,
@@ -88,7 +85,7 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
                           ),
                         ),
                         Text(
-                          '@${widget.username}',
+                          '@$username',
                           style: const TextStyle(
                             color: AppColors.navIconMuted,
                             fontSize: AppDimens.sectionLabel,
@@ -107,28 +104,29 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
                           children: [
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => setState(
-                                    () => _isFollowing = !_isFollowing),
+                                onTap: () => ref
+                                    .read(otherUserProfileProvider.notifier)
+                                    .toggleFollow(),
                                 child: Container(
                                   padding:
                                       const EdgeInsets.all(AppDimens.listGap),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: _isFollowing
+                                    color: isFollowing
                                         ? AppColors.borderSubtle
                                         : AppColors.primary,
                                     borderRadius: BorderRadius.circular(
                                         AppDimens.editButtonRadius),
                                     border: Border.all(
-                                      color: _isFollowing
+                                      color: isFollowing
                                           ? AppColors.border
                                           : AppColors.primary,
                                     ),
                                   ),
                                   child: Text(
-                                    _isFollowing ? 'Following' : 'Follow',
+                                    isFollowing ? 'Following' : 'Follow',
                                     style: TextStyle(
-                                      color: _isFollowing
+                                      color: isFollowing
                                           ? AppColors.subtitle
                                           : AppColors.onPrimary,
                                       fontSize: AppDimens.bodyText,
@@ -169,9 +167,10 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
                   const SizedBox(height: AppDimens.fieldGap),
                   SegmentedTabs(
                     labels: _tabs,
-                    selectedIndex: _tabIndex,
-                    onChanged: (index) =>
-                        setState(() => _tabIndex = index),
+                    selectedIndex: tabIndex,
+                    onChanged: (index) => ref
+                        .read(otherUserProfileProvider.notifier)
+                        .setTab(OtherUserTab.values[index]),
                   ),
                   const ProfilePlaceholderGrid(),
                 ],
