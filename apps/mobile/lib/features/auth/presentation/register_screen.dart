@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -83,32 +85,32 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               const SizedBox(height: AppDimens.headerGap),
 
               // form
-              _Field(
+              AppTextField(
                 controller: _usernameController,
                 hint: 'Username',
               ),
               const SizedBox(height: AppDimens.registerFormGap),
-              _Field(
+              AppTextField(
                 controller: _fullNameController,
                 hint: 'Full Name',
               ),
               const SizedBox(height: AppDimens.registerFormGap),
-              _Field(
+              AppTextField(
                 controller: _emailController,
                 hint: 'Email',
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: AppDimens.registerFormGap),
-              _Field(
+              AppTextField(
                 controller: _phoneController,
                 hint: 'Phone Number',
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: AppDimens.registerFormGap),
-              _Field(
+              AppTextField(
                 controller: _passwordController,
                 hint: 'Password',
-                obscure: true,
+                obscureText: true,
               ),
 
               if (_error != null) ...[
@@ -124,25 +126,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ],
 
               const SizedBox(height: AppDimens.registerButtonGap),
-              GestureDetector(
+              PrimaryButton(
+                text: _loading ? 'Creating...' : 'Create Account',
                 onTap: _loading ? null : _register,
-                child: Container(
-                  padding: const EdgeInsets.all(AppDimens.buttonPadding),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.buttonRadius),
-                  ),
-                  child: Text(
-                    _loading ? 'Creating...' : 'Create Account',
-                    style: const TextStyle(
-                      fontSize: AppDimens.buttonText,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                ),
               ),
 
               const SizedBox(height: AppDimens.registerLinkGap),
@@ -152,49 +138,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Field extends StatelessWidget {
-  const _Field({
-    required this.controller,
-    required this.hint,
-    this.keyboardType,
-    this.obscure = false,
-  });
-
-  final TextEditingController controller;
-  final String hint;
-  final TextInputType? keyboardType;
-  final bool obscure;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscure,
-      autocorrect: false,
-      style: const TextStyle(
-        fontSize: AppDimens.inputText,
-        color: AppColors.title,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.hint),
-        filled: true,
-        fillColor: AppColors.fieldBackground,
-        contentPadding: const EdgeInsets.all(AppDimens.fieldPadding),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimens.inputRadius),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimens.inputRadius),
-          borderSide: const BorderSide(color: AppColors.border),
         ),
       ),
     );

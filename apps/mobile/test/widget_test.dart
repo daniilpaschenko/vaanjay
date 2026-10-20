@@ -12,13 +12,20 @@ Future<void> _openLogin(WidgetTester tester) async {
   expect(find.text('VAANJAY'), findsOneWidget);
   await tester.pump(const Duration(milliseconds: 1600));
   await tester.pump();
-  expect(find.text('Onboarding'), findsOneWidget);
+  expect(find.text('Unga Ulagam'), findsOneWidget);
 
+  // walk the onboarding carousel to the last slide
   await tester.tap(find.text('Next'));
   await tester.pumpAndSettle();
-  expect(find.text('Language Select'), findsOneWidget);
+  await tester.tap(find.text('Next'));
+  await tester.pumpAndSettle();
+  expect(find.text('Get Started'), findsOneWidget);
 
-  await tester.tap(find.text('Continue'));
+  await tester.tap(find.text('Get Started'));
+  await tester.pumpAndSettle();
+  expect(find.text('Choose your language'), findsOneWidget);
+
+  await tester.tap(find.text('Confirm'));
   await tester.pumpAndSettle();
   expect(find.text('Sign in to continue'), findsOneWidget);
 }
@@ -45,13 +52,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Forgot Password'), findsOneWidget);
 
-    await tester.tap(find.text('Back to Login'));
+    await tester.tap(find.text('Back'));
     await tester.pumpAndSettle();
     expect(find.text('Sign in to continue'), findsOneWidget);
 
     await tester.tap(find.text('Use OTP instead'));
     await tester.pumpAndSettle();
-    expect(find.text('OTP Verify'), findsOneWidget);
+    expect(find.text('Verify OTP'), findsOneWidget);
   });
 
   testWidgets('Login navigates to register screen', (WidgetTester tester) async {
@@ -82,18 +89,18 @@ void main() {
 
     await tester.tap(find.text('Sign In'));
     await tester.pumpAndSettle();
-    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('VAANJAY'), findsOneWidget);
 
     // Tab bar: every icon opens its own tab
     await tester.tap(find.text('V'));
     await tester.pumpAndSettle();
-    expect(find.text('Vibez'), findsOneWidget);
+    expect(find.text('No Reels Yet'), findsOneWidget);
     await tester.tap(find.text('C'));
     await tester.pumpAndSettle();
     expect(find.text('Create'), findsOneWidget);
     await tester.tap(find.text('E'));
     await tester.pumpAndSettle();
-    expect(find.text('Explore'), findsOneWidget);
+    expect(find.text('Explore Topics'), findsOneWidget);
     await tester.tap(find.text('N'));
     await tester.pumpAndSettle();
     expect(find.text('Notifications'), findsOneWidget);
@@ -102,7 +109,7 @@ void main() {
     expect(find.text('Messages'), findsOneWidget);
     await tester.tap(find.text('H'));
     await tester.pumpAndSettle();
-    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('VAANJAY'), findsOneWidget);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(MyApp)),
@@ -111,7 +118,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
 
-    await tester.tap(find.text('Sign out'));
+    await tester.scrollUntilVisible(find.text('Log Out'), 300);
+    await tester.tap(find.text('Log Out'));
     await tester.pumpAndSettle();
     expect(find.text('Sign in to continue'), findsOneWidget);
   });

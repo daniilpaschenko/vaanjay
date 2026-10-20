@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/hover_link.dart';
+import '../../../core/widgets/primary_button.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -77,54 +79,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: AppDimens.sectionGap),
 
               // form
-              TextField(
+              AppTextField(
                 controller: _credentialContoller,
-                autocorrect: false,
-                style: const TextStyle(
-                  fontSize: AppDimens.inputText,
-                  color: AppColors.title,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Username, email, or phone',
-                  hintStyle: const TextStyle(color: AppColors.hint),
-                  filled: true,
-                  fillColor: AppColors.fieldBackground,
-                  contentPadding:
-                      const EdgeInsets.all(AppDimens.fieldPadding),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                ),
+                hint: 'Username, email, or phone',
               ),
               const SizedBox(height: AppDimens.formGap),
-              TextField(
+              AppTextField(
                 controller: _passwordController,
+                hint: 'Password',
                 obscureText: true,
-                style: const TextStyle(
-                  fontSize: AppDimens.inputText,
-                  color: AppColors.title,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  hintStyle: const TextStyle(color: AppColors.hint),
-                  filled: true,
-                  fillColor: AppColors.fieldBackground,
-                  contentPadding:
-                      const EdgeInsets.all(AppDimens.fieldPadding),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDimens.inputRadius),
-                    borderSide: const BorderSide(color: AppColors.border),
-                  ),
-                ),
               ),
 
               if (_error != null) ...[
@@ -140,26 +103,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ],
 
               const SizedBox(height: AppDimens.buttonGap),
-              GestureDetector(
+              PrimaryButton(
+                text: _loading ? 'Signing in...' : 'Sign In',
                 onTap: _loading ? null : _login,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppDimens.buttonPadding),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.buttonRadius),
-                  ),
-                  child: Text(
-                    _loading ? 'Signing in...' : 'Sign In',
-                    style: const TextStyle(
-                      fontSize: AppDimens.buttonText,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                ),
               ),
 
               const SizedBox(height: AppDimens.formGap),
