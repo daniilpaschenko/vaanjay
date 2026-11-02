@@ -46,7 +46,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final auth = ref.read(authProvider);
       final location = state.matchedLocation;
 
-      if (auth.loading) {
+      if (auth.initializing) {
         return location == RoutePaths.splash ? null : RoutePaths.splash;
       }
       if (auth.loggedIn) {
@@ -86,7 +86,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RoutePaths.otpVerify,
-        builder: (context, state) => const OTPVerifyScreen(),
+        builder: (context, state) => OTPVerifyScreen(
+          phone: state.uri.queryParameters['phone'] ?? '',
+        ),
       ),
       GoRoute(
         path: RoutePaths.forgotPassword,

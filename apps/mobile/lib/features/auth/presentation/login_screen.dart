@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,37 +7,54 @@ import '../../../core/router/route_paths.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/hover_link.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
+
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _credentialContoller = TextEditingController();
-  final _passwordController = TextEditingController();
-  String? _error;
-  bool _loading = false;
+  static const _countryCode = '+91';
 
-  Future<void> _login() async {
-    setState(() {
-      _error = null;
-      _loading = true;
-    });
-    try {} catch (e) {
-      setState(() => _error = 'Login failed');
-    } finally {
-      setState(() => _loading = false);
-      ref.read(authProvider.notifier).signIn();
+  final _phoneController = TextEditingController();
+  bool _navigating = false;
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendOtp() async {
+    final digits = _phoneController.text.trim();
+    if (digits.length != 10) return;
+
+    final phone = '$_countryCode$digits';
+    final ok = await ref.read(authProvider.notifier).sendOtp(phone);
+    if (!mounted || !ok) return;
+
+    final auth = ref.read(authProvider);
+    // If Firebase auto-verified the device, the router already redirected to home
+    // Otherwise move on to the SMS code screen
+    if (auth.verificationId != null && !auth.loggedIn) {
+      setState(() => _navigating = true);
+      await context.push(
+        '${RoutePaths.otpVerify}?phone=${Uri.encodeComponent(phone)}',
+      );
+      if (mounted) setState(() => _navigating = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = ref.watch(authProvider);
+    final digits = _phoneController.text.replaceAll(RegExp(r'\D'), '');
+    final canSubmit = digits.length == 10 && !auth.busy && !_navigating;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
@@ -68,7 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   SizedBox(height: AppDimens.subtitleGap),
                   Text(
-                    'Sign in to continue',
+                    'Sign in with your phone number',
                     style: TextStyle(
                       fontSize: AppDimens.bodyText,
                       color: AppColors.subtitle,
@@ -78,22 +96,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: AppDimens.sectionGap),
 
-              // form
-              AppTextField(
-                controller: _credentialContoller,
-                hint: 'Username, email, or phone',
-              ),
-              const SizedBox(height: AppDimens.formGap),
-              AppTextField(
-                controller: _passwordController,
-                hint: 'Password',
-                obscureText: true,
+              // phone number field with +91 prefix
+              Row(
+                children: [
+                  Container(
+                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.fieldBackground,
+                      borderRadius:
+                          BorderRadius.circular(AppDimens.inputRadius),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: const Text(
+                      _countryCode,
+                      style: TextStyle(
+                        fontSize: AppDimens.inputText,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.title,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppDimens.otpBoxGap),
+                  Expanded(
+                    child: AppTextField(
+                      controller: _phoneController,
+                      hint: '98765 43210',
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.done,
+                      autofocus: true,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) => _sendOtp(),
+                    ),
+                  ),
+                ],
               ),
 
-              if (_error != null) ...[
+              if (auth.error != null) ...[
                 const SizedBox(height: AppDimens.formGap),
                 Text(
-                  _error!,
+                  auth.error!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: AppDimens.bodyText,
@@ -104,63 +151,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               const SizedBox(height: AppDimens.buttonGap),
               PrimaryButton(
-                text: _loading ? 'Signing in...' : 'Sign In',
-                onTap: _loading ? null : _login,
-              ),
-
-              const SizedBox(height: AppDimens.formGap),
-                HoverLink(
-                  text: 'Use OTP instead',
-                  onTap: () => context.go(RoutePaths.otpVerify),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
-                ),
-                const SizedBox(height: AppDimens.formGap),
-                HoverLink(
-                  text: 'Forgot password?',
-                  onTap: () => context.go(RoutePaths.forgotPassword),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppDimens.linkPadding),
-                ),
-
-              const SizedBox(height: AppDimens.formGap),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: AppDimens.dividerPadding),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: AppDimens.dividerLineHeight,
-                        color: AppColors.border,
-                      ),
-                    ),
-                    const SizedBox(width: AppDimens.dividerPartGap),
-                    const Text(
-                      'or',
-                      style: TextStyle(
-                        fontSize: AppDimens.caption,
-                        color: AppColors.hint,
-                      ),
-                    ),
-                    const SizedBox(width: AppDimens.dividerPartGap),
-                    Expanded(
-                      child: Container(
-                        height: AppDimens.dividerLineHeight,
-                        color: AppColors.border,
-                      ),
-                    ),
-                  ],
-                ),
+                text: auth.sendingCode
+                    ? 'Sending code...'
+                    : _navigating
+                        ? 'Opening...'
+                        : 'Send OTP',
+                onTap: canSubmit ? _sendOtp : null,
               ),
               const SizedBox(height: AppDimens.formGap),
-              HoverLink(
-                text: 'Create new account',
-                onTap: () => context.go(RoutePaths.register),
-                style: const TextStyle(
-                  fontSize: AppDimens.bodyText,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+              const Text(
+                'We will send a 6-digit code to this number. '
+                'New numbers are registered automatically.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: AppDimens.caption,
+                  color: AppColors.hint,
                 ),
               ),
             ],
