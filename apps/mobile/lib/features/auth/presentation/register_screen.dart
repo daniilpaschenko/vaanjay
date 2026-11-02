@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/router/route_paths.dart';
@@ -8,15 +7,14 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/hover_link.dart';
 import '../../../core/widgets/primary_button.dart';
-import '../providers/auth_provider.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -34,7 +32,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       setState(() => _error = 'Registration failed');
     } finally {
       setState(() => _loading = false);
-      ref.read(authProvider.notifier).signIn();
     }
   }
 
