@@ -9,22 +9,24 @@ build/
 .idea/
 *.log
 
-# Android
-android/app/google-services.json
-android/app/google-services-debug.json
-android/key.properties
-android/keystore.jks
-android/*.keystore
+# Android (Flutter app in apps/mobile)
+apps/mobile/android/app/google-services.json
+apps/mobile/android/app/google-services-debug.json
+apps/mobile/android/key.properties
+apps/mobile/android/keystore.jks
+apps/mobile/android/*.keystore
 
-# iOS
-ios/Runner/GoogleService-Info.plist
-ios/*.p12
-ios/*.mobileprovision
-ios/Runner/.generated/
-ios/Runner/Runner.entitlements
+# iOS (Flutter app in apps/mobile)
+apps/mobile/ios/Runner/GoogleService-Info.plist
+apps/mobile/ios/*.p12
+apps/mobile/ios/*.mobileprovision
+apps/mobile/ios/Runner/.generated/
+apps/mobile/ios/Runner/Runner.entitlements
 
-# Firebase web config
-web/firebase-config.js
+# Firebase web config (Next.js web app)
+apps/web/public/firebase-config.js
+apps/web/.env.local
+apps/web/.env.*
 .web_config/
 
 # Environment / secrets
