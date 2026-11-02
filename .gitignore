@@ -29,6 +29,9 @@ apps/web/.env.local
 apps/web/.env.*
 .web_config/
 
+# Next.js build output
+apps/web/.next/
+
 # Environment / secrets
 .env
 .env.*
