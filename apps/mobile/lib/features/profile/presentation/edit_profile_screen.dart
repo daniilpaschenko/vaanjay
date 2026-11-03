@@ -7,7 +7,11 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/labeled_field.dart';
 import '../../../core/widgets/screen_header.dart';
+import '../../auth/domain/entities/user_profile.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../auth/providers/user_profile_provider.dart';
 import '../providers/edit_profile_provider.dart';
+import '../providers/profile_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -23,6 +27,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _websiteController = TextEditingController();
   final _genderController = TextEditingController();
 
+  bool _seeded = false;
+  bool _saving = false;
+
   @override
   void dispose() {
     _fullNameController.dispose();
@@ -33,9 +40,69 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
+  void _seed(UserProfile profile) {
+    if (_seeded) return;
+    _seeded = true;
+
+    _fullNameController.text = profile.fullName ?? '';
+    _usernameController.text = profile.username ?? '';
+    _bioController.text = profile.bio ?? '';
+    _websiteController.text = profile.websiteUrl ?? '';
+    _genderController.text = profile.gender ?? '';
+
+    ref.read(editProfileProvider.notifier).load(profile);
+  }
+
+  Future<void> _save() async {
+    if (_saving) return;
+
+    final uid = ref.read(authProvider).user?.uid;
+    if (uid == null) return;
+
+    final form = ref.read(editProfileProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _saving = true);
+
+    try {
+      await ref.read(updateUserProfileProvider)(
+        uid: uid,
+        fullName: form.fullName.trim(),
+        username: form.username.trim(),
+        bio: form.bio.trim(),
+        websiteUrl: form.website.trim(),
+        gender: form.gender.trim(),
+        isPrivate: form.isPrivate,
+        languagePreference: form.languagePreference,
+      );
+
+      if (!mounted) return;
+      context.pop();
+      messenger.showSnackBar(const SnackBar(content: Text('Profile updated')));
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Could not save the profile. Try again.')),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final form = ref.watch(editProfileProvider);
+
+    ref.listen<AsyncValue<UserProfile?>>(currentUserProfileProvider, (_, next) {
+      final profile = next.value;
+      if (profile != null && !_seeded) _seed(profile);
+    });
+
+    final loadedProfile = ref.watch(currentUserProfileProvider).value;
+    if (!_seeded && loadedProfile != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _seed(loadedProfile);
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -64,7 +131,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               trailing: GestureDetector(
-                onTap: () => context.pop(),
+                onTap: _saving ? null : _save,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.contentPadding,
@@ -72,17 +139,27 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius:
-                        BorderRadius.circular(AppDimens.cardRadiusTiny),
-                  ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
-                      color: AppColors.onPrimary,
-                      fontSize: AppDimens.bodyText,
-                      fontWeight: FontWeight.w600,
+                    borderRadius: BorderRadius.circular(
+                      AppDimens.cardRadiusTiny,
                     ),
                   ),
+                  child: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.onPrimary,
+                          ),
+                        )
+                      : const Text(
+                          'Save',
+                          style: TextStyle(
+                            color: AppColors.onPrimary,
+                            fontSize: AppDimens.bodyText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -137,8 +214,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         onChanged: (value) => ref
                             .read(editProfileProvider.notifier)
                             .setFullName(value),
-                        contentPadding:
-                            const EdgeInsets.all(AppDimens.searchPadding),
+                        contentPadding: const EdgeInsets.all(
+                          AppDimens.searchPadding,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppDimens.contentPadding),
@@ -150,8 +228,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         onChanged: (value) => ref
                             .read(editProfileProvider.notifier)
                             .setUsername(value),
-                        contentPadding:
-                            const EdgeInsets.all(AppDimens.searchPadding),
+                        contentPadding: const EdgeInsets.all(
+                          AppDimens.searchPadding,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppDimens.contentPadding),
@@ -162,10 +241,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         hint: 'Tell your story...',
                         maxLines: null,
                         minLines: 4,
-                        onChanged: (value) =>
-                            ref.read(editProfileProvider.notifier).setBio(value),
-                        contentPadding:
-                            const EdgeInsets.all(AppDimens.searchPadding),
+                        onChanged: (value) => ref
+                            .read(editProfileProvider.notifier)
+                            .setBio(value),
+                        contentPadding: const EdgeInsets.all(
+                          AppDimens.searchPadding,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppDimens.contentPadding),
@@ -177,8 +258,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         onChanged: (value) => ref
                             .read(editProfileProvider.notifier)
                             .setWebsite(value),
-                        contentPadding:
-                            const EdgeInsets.all(AppDimens.searchPadding),
+                        contentPadding: const EdgeInsets.all(
+                          AppDimens.searchPadding,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppDimens.contentPadding),
@@ -190,22 +272,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         onChanged: (value) => ref
                             .read(editProfileProvider.notifier)
                             .setGender(value),
-                        contentPadding:
-                            const EdgeInsets.all(AppDimens.searchPadding),
+                        contentPadding: const EdgeInsets.all(
+                          AppDimens.searchPadding,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppDimens.contentPadding),
                     LabeledField(
                       label: 'Language',
                       child: Container(
-                        padding:
-                            const EdgeInsets.all(AppDimens.searchPadding),
+                        padding: const EdgeInsets.all(AppDimens.searchPadding),
                         decoration: BoxDecoration(
                           color: AppColors.iconBackground,
                           borderRadius: BorderRadius.circular(
-                              AppDimens.cardRadiusSmall),
-                          border:
-                              Border.all(color: AppColors.primaryBorder),
+                            AppDimens.cardRadiusSmall,
+                          ),
+                          border: Border.all(color: AppColors.primaryBorder),
                         ),
                         child: const Text(
                           'Tamil (Tamil)',

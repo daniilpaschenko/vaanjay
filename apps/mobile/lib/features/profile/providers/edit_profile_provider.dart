@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/domain/entities/user_profile.dart';
+
 class EditProfileState {
   const EditProfileState({
     this.fullName = '',
@@ -44,6 +46,19 @@ class EditProfileNotifier extends Notifier<EditProfileState> {
   @override
   EditProfileState build() => const EditProfileState();
 
+  /// Fills the form from the stored profile.
+  void load(UserProfile profile) {
+    state = EditProfileState(
+      fullName: profile.fullName ?? '',
+      username: profile.username ?? '',
+      bio: profile.bio ?? '',
+      website: profile.websiteUrl ?? '',
+      gender: profile.gender ?? '',
+      languagePreference: profile.languagePreference,
+      isPrivate: profile.isPrivate,
+    );
+  }
+
   void setFullName(String value) => state = state.copyWith(fullName: value);
 
   void setUsername(String value) => state = state.copyWith(username: value);
@@ -62,5 +77,5 @@ class EditProfileNotifier extends Notifier<EditProfileState> {
 
 final editProfileProvider =
     NotifierProvider<EditProfileNotifier, EditProfileState>(
-  EditProfileNotifier.new,
-);
+      EditProfileNotifier.new,
+    );

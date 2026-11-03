@@ -1,38 +1,29 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/domain/entities/user_profile.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../auth/providers/user_profile_provider.dart';
+
 enum ProfileTab { posts, reels, tagged }
 
+/// Live `users/{uid}` document for the signed-in user.
+final currentUserProfileProvider = StreamProvider<UserProfile?>((ref) {
+  final uid = ref.watch(authProvider.select((state) => state.user?.uid));
+  if (uid == null) return Stream<UserProfile?>.value(null);
+  return ref.watch(userProfileRepositoryProvider).watchProfile(uid);
+});
+
 class ProfileState {
-  const ProfileState({
-    this.profile,
-    this.tab = ProfileTab.posts,
-    this.posts = const [],
-  });
+  const ProfileState({this.tab = ProfileTab.posts});
 
-  final Map<String, dynamic>? profile;
   final ProfileTab tab;
-  final List<Map<String, dynamic>> posts;
-
-  ProfileState copyWith({
-    Map<String, dynamic>? profile,
-    ProfileTab? tab,
-    List<Map<String, dynamic>>? posts,
-  }) {
-    return ProfileState(
-      profile: profile ?? this.profile,
-      tab: tab ?? this.tab,
-      posts: posts ?? this.posts,
-    );
-  }
 }
 
 class ProfileNotifier extends Notifier<ProfileState> {
   @override
   ProfileState build() => const ProfileState();
 
-  void setTab(ProfileTab tab) => state = state.copyWith(tab: tab);
-
-  Future<void> load() async {}
+  void setTab(ProfileTab tab) => state = ProfileState(tab: tab);
 }
 
 final profileProvider = NotifierProvider<ProfileNotifier, ProfileState>(
