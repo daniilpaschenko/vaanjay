@@ -31,15 +31,15 @@ class OtherUserProfileScreen extends ConsumerWidget {
         child: Column(
           children: [
             ScreenHeader(
+              centerTitle: true,
               leading: BackLink(onTap: () => context.pop()),
-              title: Center(
-                child: Text(
-                  '@$username',
-                  style: const TextStyle(
-                    color: AppColors.title,
-                    fontSize: AppDimens.inputText,
-                    fontWeight: FontWeight.w600,
-                  ),
+              title: Text(
+                '@$username',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.title,
+                  fontSize: AppDimens.inputText,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               trailing: const SizedBox(width: 40),

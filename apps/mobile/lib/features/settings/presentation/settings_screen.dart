@@ -64,6 +64,7 @@ class SettingsScreen extends ConsumerWidget {
         child: Column(
           children: [
             ScreenHeader(
+              centerTitle: true,
               leading: BackLink(onTap: () => context.pop()),
               title: const Text(
                 'Settings',

@@ -47,15 +47,15 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ScreenHeader(
+              centerTitle: true,
               leading: BackLink(onTap: () => context.pop()),
-              title: const Center(
-                child: Text(
-                  'Payments',
-                  style: TextStyle(
-                    color: AppColors.title,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+              title: const Text(
+                'Payments',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.title,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               trailing: const SizedBox(width: 40),

@@ -38,6 +38,7 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           children: [
             ScreenHeader(
+              centerTitle: true,
               leading: BackLink(onTap: () => context.pop()),
               title: const Text(
                 'Profile',
@@ -48,15 +49,17 @@ class ProfileScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              trailing: GestureDetector(
-                onTap: () => context.push(RoutePaths.settings),
-                child: const Text(
-                  'Settings',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: AppDimens.bodyText,
-                    fontWeight: FontWeight.w600,
-                  ),
+              trailing: IconButton(
+                onPressed: () => context.push(RoutePaths.settings),
+                tooltip: 'Settings',
+                icon: const Icon(Icons.settings_outlined),
+                iconSize: AppDimens.headerIconSize,
+                color: AppColors.primary,
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(
+                  minWidth: AppDimens.headerIconButtonSize,
+                  minHeight: AppDimens.headerIconButtonSize,
                 ),
               ),
             ),

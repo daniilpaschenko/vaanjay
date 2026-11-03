@@ -109,6 +109,8 @@ abstract final class AppDimens {
   // Shared layout
   static const screenTopInset = 56.0; // status-bar offset used by RN headers
   static const headerHPadding = 16.0;
+  static const headerIconSize = 24.0;
+  static const headerIconButtonSize = 40.0; // tap target for header icons
   static const contentPadding = 16.0;
   static const cardRadius = 12.0;
   static const cardRadiusSmall = 10.0;
