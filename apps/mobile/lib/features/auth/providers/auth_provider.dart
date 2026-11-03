@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'user_profile_provider.dart';
+import '../data/repositories/user_profile_repository.dart';
+
 /// Country code used when the user types a local (10-digit) phone number.
 const _defaultCountryCode = '+91';
 
@@ -21,35 +24,17 @@ class AuthState {
     this.error,
   });
 
-  /// True while Firebase restores the persisted session on app start
   final bool initializing;
-
-  /// Signed-in Firebase user, or null for a guest
   final User? user;
-
-  /// Phone the OTP was requested for, in E.164 format (+919876543210)
   final String? pendingPhone;
-
-  /// Verification id returned by the `codeSent` callback
   final String? verificationId;
-
-  /// Token used to force-resend an SMS before the auto-retrieval timeout
   final int? resendToken;
-
-  /// True while the OTP request is in flight
   final bool sendingCode;
-
-  /// True while the SMS code is being verified
   final bool verifying;
-
-  /// Human-readable error for the current operation
   final String? error;
 
   bool get loggedIn => user != null;
-
-  /// True while any auth request is running (send or verify)
   bool get busy => sendingCode || verifying;
-
   bool get hasPendingCode => verificationId != null;
 
   AuthState copyWith({
@@ -83,21 +68,21 @@ class AuthState {
 
 class AuthNotifier extends Notifier<AuthState> {
   FirebaseAuth? _auth;
+  UserProfileRepository? _profileRepo;
 
   @override
   AuthState build() {
     final auth = _tryFirebaseAuth();
     _auth = auth;
 
-    // Firebase is not available (e.g. widget tests or a missing config file).
-    // Stay in a signed-out state instead of crashing the app.
     if (auth == null) {
       return const AuthState(initializing: false);
     }
 
+    _profileRepo = ref.watch(userProfileRepositoryProvider);
+
     final subscription = auth.authStateChanges().listen(
       (user) {
-        // Firebase restored a session or a sign-in just completed.
         state = AuthState(
           initializing: false,
           user: user,
@@ -107,6 +92,8 @@ class AuthNotifier extends Notifier<AuthState> {
           sendingCode: false,
           verifying: false,
         );
+        // Make sure a profile exists for sessions restored from disk
+        if (user != null) unawaited(_ensureProfile(user));
       },
       onError: (Object _) {
         state = state.copyWith(
@@ -120,9 +107,6 @@ class AuthNotifier extends Notifier<AuthState> {
     return const AuthState();
   }
 
-  /// Sends an SMS OTP to [rawPhone]
-  /// The number may be a local 10-digit Indian number or a full E.164 number
-  /// (starting with `+`). Returns true when a code was requested/accepted
   Future<bool> sendOtp(String rawPhone) async {
     final auth = _auth;
     if (auth == null) return _fail('Firebase is not initialized.');
@@ -156,9 +140,9 @@ class AuthNotifier extends Notifier<AuthState> {
         timeout: const Duration(seconds: 60),
         forceResendingToken: resendingToken,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          // Android can auto-retrieve the SMS and verify it instantly.
           try {
             await auth.signInWithCredential(credential);
+            await _ensureProfile(auth.currentUser);
             completeOnce(true);
           } on FirebaseAuthException catch (e) {
             state = state.copyWith(
@@ -222,7 +206,6 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
-  /// Confirms the SMS code for the current [AuthState.verificationId]
   Future<bool> verifyOtp(String smsCode) async {
     final auth = _auth;
     if (auth == null) return _fail('Firebase is not initialized.');
@@ -245,6 +228,7 @@ class AuthNotifier extends Notifier<AuthState> {
         smsCode: code,
       );
       await auth.signInWithCredential(credential);
+      await _ensureProfile(auth.currentUser);
       state = state.copyWith(
         verifying: false,
         verificationId: null,
@@ -263,7 +247,6 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  /// Re-sends the code to the phone number stored in state
   Future<bool> resendOtp() async {
     final phone = state.pendingPhone;
     if (phone == null) {
@@ -289,6 +272,22 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Creates/updates `users/{uid}` after a successful sign-in
+  /// Never throws: a failed profile write must not block authentication
+  Future<void> _ensureProfile(User? user) async {
+    final repo = _profileRepo;
+    if (user == null || repo == null) return;
+
+    final phone = user.phoneNumber ?? state.pendingPhone;
+    if (phone == null || phone.isEmpty) return;
+
+    try {
+      await repo.upsertProfile(uid: user.uid, phoneNumber: phone);
+    } catch (_) {
+      // The profile will be created on the next successful sign-in
+    }
+  }
+
   bool _fail(String message) {
     state = state.copyWith(
       sendingCode: false,
@@ -298,9 +297,6 @@ class AuthNotifier extends Notifier<AuthState> {
     return false;
   }
 
-  /// Normalizes a user-entered phone into E.164
-  ///
-  /// Supports `9876543210`, `09876543210`, `919876543210` and `+919876543210`
   String? _normalizePhone(String raw) {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) return null;
