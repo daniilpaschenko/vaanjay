@@ -49,6 +49,29 @@ class FirebaseUserProfileRepository implements UserProfileInterface {
   }
 
   @override
+  Future<void> updateProfile({
+    required String uid,
+    String? fullName,
+    String? username,
+    String? bio,
+    String? websiteUrl,
+    String? gender,
+    bool? isPrivate,
+    String? languagePreference,
+  }) async {
+    await _profileDoc(uid).set({
+      'fullName': ?fullName,
+      'username': ?username,
+      'bio': ?bio,
+      'websiteUrl': ?websiteUrl,
+      'gender': ?gender,
+      'isPrivate': ?isPrivate,
+      'languagePreference': ?languagePreference,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  @override
   Future<UserProfile?> getProfile(String uid) async {
     final snapshot = await _profileDoc(uid).get();
     return _toEntity(snapshot);
