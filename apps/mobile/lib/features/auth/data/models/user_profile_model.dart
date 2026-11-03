@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/user_profile.dart';
@@ -23,21 +22,15 @@ class UserProfileModel {
   final DateTime? updatedAt;
 
   // Firestore -> Model
-  factory UserProfileModel.fromMap(
-    String uid,
-    Map<String, dynamic> data,
-  ) {
+  factory UserProfileModel.fromMap(String uid, Map<String, dynamic> data) {
     return UserProfileModel(
       uid: uid,
       phoneNumber: data['phoneNumber'] as String?,
       fullName: data['fullName'] as String?,
       username: data['username'] as String?,
-      languagePreference:
-          (data['languagePreference'] as String?) ?? 'ta',
-      createdAt:
-          (data['createdAt'] as Timestamp?)?.toDate(),
-      updatedAt:
-          (data['updatedAt'] as Timestamp?)?.toDate(),
+      languagePreference: (data['languagePreference'] as String?) ?? 'ta',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );
   }
 

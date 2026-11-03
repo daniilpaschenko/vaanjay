@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'user_profile_provider.dart';
-import '../data/repositories/user_profile_repository.dart';
+import '../domain/usecases/ensure_user_profile.dart';
 
 /// Country code used when the user types a local (10-digit) phone number.
 const _defaultCountryCode = '+91';
@@ -68,7 +68,7 @@ class AuthState {
 
 class AuthNotifier extends Notifier<AuthState> {
   FirebaseAuth? _auth;
-  UserProfileRepository? _profileRepo;
+  EnsureUserProfile? _ensureProfileUseCase;
 
   @override
   AuthState build() {
@@ -79,7 +79,7 @@ class AuthNotifier extends Notifier<AuthState> {
       return const AuthState(initializing: false);
     }
 
-    _profileRepo = ref.watch(userProfileRepositoryProvider);
+    _ensureProfileUseCase = ref.watch(ensureUserProfileProvider);
 
     final subscription = auth.authStateChanges().listen(
       (user) {
@@ -275,14 +275,14 @@ class AuthNotifier extends Notifier<AuthState> {
   /// Creates/updates `users/{uid}` after a successful sign-in
   /// Never throws: a failed profile write must not block authentication
   Future<void> _ensureProfile(User? user) async {
-    final repo = _profileRepo;
-    if (user == null || repo == null) return;
+    final useCase = _ensureProfileUseCase;
+    if (user == null || useCase == null) return;
 
     final phone = user.phoneNumber ?? state.pendingPhone;
     if (phone == null || phone.isEmpty) return;
 
     try {
-      await repo.upsertProfile(uid: user.uid, phoneNumber: phone);
+      await useCase(uid: user.uid, phoneNumber: phone);
     } catch (_) {
       // The profile will be created on the next successful sign-in
     }

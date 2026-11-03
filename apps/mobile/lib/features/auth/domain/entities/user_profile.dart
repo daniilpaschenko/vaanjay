@@ -1,4 +1,3 @@
-
 class UserProfile {
   const UserProfile({
     required this.uid,
