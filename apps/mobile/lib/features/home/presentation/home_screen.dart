@@ -8,6 +8,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/avatar_circle.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/screen_header.dart';
+import '../../profile/providers/profile_provider.dart';
 import '../providers/home_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -18,6 +19,12 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasPosts = ref.watch(homeProvider).posts.isNotEmpty;
+    final profile = ref.watch(currentUserProfileProvider).value;
+    final fullName = profile?.fullName?.trim() ?? '';
+    final username = profile?.username?.trim() ?? '';
+    final initial = fullName.isNotEmpty
+        ? fullName.substring(0, 1).toUpperCase()
+        : (username.isNotEmpty ? username.substring(0, 1).toUpperCase() : '?');
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
@@ -33,7 +40,7 @@ class HomeScreen extends ConsumerWidget {
             ),
             title: const SizedBox.shrink(),
             trailing: GestureDetector(
-              onTap: () => context.go(RoutePaths.settings),
+              onTap: () => context.push(RoutePaths.profile),
               child: Container(
                 width: AppDimens.avatarSmall,
                 height: AppDimens.avatarSmall,
@@ -42,9 +49,9 @@ class HomeScreen extends ConsumerWidget {
                   color: AppColors.iconBackground,
                   shape: BoxShape.circle,
                 ),
-                child: const Text(
-                  'S',
-                  style: TextStyle(
+                child: Text(
+                  initial,
+                  style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -61,8 +68,7 @@ class HomeScreen extends ConsumerWidget {
                 if (!hasPosts)
                   const EmptyState(
                     title: 'Welcome to VAANJAY',
-                    subtitle:
-                        'Follow users to see their posts in your feed',
+                    subtitle: 'Follow users to see their posts in your feed',
                   ),
               ],
             ),
@@ -86,16 +92,13 @@ class _StoriesRow extends StatelessWidget {
         vertical: AppDimens.storiesVerticalPadding,
       ),
       decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.borderSubtle),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.borderSubtle)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            for (var i = 0; i < count; i++)
-              _StoryItem(label: 'User ${i + 1}'),
+            for (var i = 0; i < count; i++) _StoryItem(label: 'User ${i + 1}'),
           ],
         ),
       ),
@@ -135,10 +138,7 @@ class _StoryItem extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.subtitle,
-              fontSize: 11,
-            ),
+            style: const TextStyle(color: AppColors.subtitle, fontSize: 11),
           ),
         ],
       ),

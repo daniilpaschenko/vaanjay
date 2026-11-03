@@ -20,6 +20,7 @@ class RoutePaths {
   static const messages = '/messages';
 
   // Pushed on top of the tabs
+  static const profile = '/profile';
   static const chat = '/chat';
   static const otherUserProfile = '/other-user-profile';
   static const editProfile = '/edit-profile';
