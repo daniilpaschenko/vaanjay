@@ -69,7 +69,7 @@ class SettingsScreen extends ConsumerWidget {
                 'Settings',
                 style: TextStyle(
                   color: AppColors.title,
-                  fontSize: 28,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
               ),
