@@ -84,6 +84,7 @@ class SettingsScreen extends ConsumerWidget {
                   for (final section in _sections) ...[
                     _Section(section: section, onTap: () {}),
                   ],
+                  const SizedBox(height: AppDimens.contentPadding),
                   GestureDetector(
                     onTap: () => ref.read(authProvider.notifier).signOut(),
                     child: Container(
