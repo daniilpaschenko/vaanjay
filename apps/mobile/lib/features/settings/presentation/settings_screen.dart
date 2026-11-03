@@ -67,13 +67,13 @@ class SettingsScreen extends ConsumerWidget {
               leading: BackLink(onTap: () => context.pop()),
               title: const Text(
                 'Settings',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.title,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              paddingBottom: AppDimens.contentPadding,
             ),
             Expanded(
               child: ListView(

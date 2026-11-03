@@ -125,7 +125,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   'Edit Profile',
                   style: TextStyle(
                     color: AppColors.title,
-                    fontSize: 17,
+                    fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

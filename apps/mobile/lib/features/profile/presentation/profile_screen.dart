@@ -41,6 +41,7 @@ class ProfileScreen extends ConsumerWidget {
               leading: BackLink(onTap: () => context.pop()),
               title: const Text(
                 'Profile',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.title,
                   fontSize: 20,
